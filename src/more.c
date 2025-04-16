@@ -1,20 +1,33 @@
-
 #include "types.h"
 #include "user.h"
 #include "fcntl.h"
 
 #define LINES_PER_PAGE 24
 
-void wait_prompt() {
-  write(1, "--More--", 8);
+void
+wait_prompt() {
   char c;
-  if (read(0, &c, 1) < 1)
-    exit(); // quit if can't read input
-  write(1, "\n", 1);
-  if (c == 'q') exit();
+  write(1, "--More--", 8);
+  // Open console device explicitly
+  int console_fd = open("/dev/console", O_RDONLY);
+  if (console_fd < 0) {
+    exit(); // quit if can't read
+  }
+
+  // Read directly from the console (blocks until keypress)
+  if (read(console_fd, &c, 1) != 1) {
+    close(console_fd);
+    exit();
+  }
+  if (c == 'q') {
+    close(console_fd);
+    exit();
+  }
+  close(console_fd);
 }
 
-void more(int fd) {
+void
+more(int fd) {
   char ch;
   int lines = 0;
 
@@ -31,11 +44,12 @@ void more(int fd) {
   exit();
 }
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char *argv[]) {
   if (argc <= 1) {
-    more(0); // stdin
+    more(0); // Read from stdin
   } else {
-    int fd = open(argv[1], 0);
+    int fd = open(argv[1], O_RDONLY);
     if (fd < 0) {
       write(2, "Cannot open file\n", 17);
       exit();
@@ -45,4 +59,3 @@ int main(int argc, char *argv[]) {
   }
   exit();
 }
-

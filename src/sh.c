@@ -181,7 +181,7 @@ main(void)
       // Chdir must be called by the parent, not the child.
       buf[strlen(buf)-1] = 0;  // chop \n
       if(chdir(buf+3) < 0)
-        printf("%s: bad directory\n", buf+3);
+        printf("%s: No such file or directory\n", buf+3);
       continue;
     } if(buf[0] == 'e' && buf[1] == 'x' && buf[2] == 'i' && buf[3] == 't'){
       	exit();

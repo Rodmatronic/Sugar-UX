@@ -41,7 +41,7 @@ main(void)
       // Chdir must be called by the parent, not the child.
       buf[strlen(buf)-1] = 0;  // chop \n
       if(chdir(buf+3) < 0)
-        printf("%s: bad directory\n", buf+3);
+        printf("%s: No such file or directory\n", buf+3);
       continue;
     } if(buf[0] == 'e' && buf[1] == 'x' && buf[2] == 'i' && buf[3] == 't'){
       40:	3c 65                	cmp    $0x65,%al
@@ -102,11 +102,11 @@ fork1(void)
       dc:	83 c4 10             	add    $0x10,%esp
       df:	85 c0                	test   %eax,%eax
       e1:	79 89                	jns    6c <main+0x6c>
-        printf("%s: bad directory\n", buf+3);
+        printf("%s: No such file or directory\n", buf+3);
       e3:	51                   	push   %ecx
       e4:	51                   	push   %ecx
       e5:	68 03 20 00 00       	push   $0x2003
-      ea:	68 96 18 00 00       	push   $0x1896
+      ea:	68 d0 18 00 00       	push   $0x18d0
       ef:	e8 9c 10 00 00       	call   1190 <printf>
       f4:	83 c4 10             	add    $0x10,%esp
       f7:	e9 70 ff ff ff       	jmp    6c <main+0x6c>
@@ -229,7 +229,7 @@ fork1(void)
      1f7:	83 3b 05             	cmpl   $0x5,(%ebx)
      1fa:	0f 87 69 01 00 00    	ja     369 <runcmd+0x189>
      200:	8b 03                	mov    (%ebx),%eax
-     202:	ff 24 85 b0 18 00 00 	jmp    *0x18b0(,%eax,4)
+     202:	ff 24 85 a0 18 00 00 	jmp    *0x18a0(,%eax,4)
   if(ecmd->argv[0] == 0)
      209:	8b 4b 04             	mov    0x4(%ebx),%ecx
      20c:	85 c9                	test   %ecx,%ecx
@@ -668,7 +668,7 @@ gettoken(char **ps, char *es, char **q, char **eq)
      567:	0f be 07             	movsbl (%edi),%eax
      56a:	83 ec 08             	sub    $0x8,%esp
      56d:	50                   	push   %eax
-     56e:	68 e0 1f 00 00       	push   $0x1fe0
+     56e:	68 f0 1f 00 00       	push   $0x1ff0
      573:	e8 38 08 00 00       	call   db0 <strchr>
      578:	83 c4 10             	add    $0x10,%esp
      57b:	85 c0                	test   %eax,%eax
@@ -714,7 +714,7 @@ gettoken(char **ps, char *es, char **q, char **eq)
      5b7:	0f be 07             	movsbl (%edi),%eax
      5ba:	83 ec 08             	sub    $0x8,%esp
      5bd:	50                   	push   %eax
-     5be:	68 e0 1f 00 00       	push   $0x1fe0
+     5be:	68 f0 1f 00 00       	push   $0x1ff0
      5c3:	e8 e8 07 00 00       	call   db0 <strchr>
      5c8:	83 c4 10             	add    $0x10,%esp
      5cb:	85 c0                	test   %eax,%eax
@@ -759,7 +759,7 @@ gettoken(char **ps, char *es, char **q, char **eq)
      610:	0f be 07             	movsbl (%edi),%eax
      613:	83 ec 08             	sub    $0x8,%esp
      616:	50                   	push   %eax
-     617:	68 d8 1f 00 00       	push   $0x1fd8
+     617:	68 e8 1f 00 00       	push   $0x1fe8
      61c:	e8 8f 07 00 00       	call   db0 <strchr>
      621:	83 c4 10             	add    $0x10,%esp
      624:	85 c0                	test   %eax,%eax
@@ -772,7 +772,7 @@ gettoken(char **ps, char *es, char **q, char **eq)
      62f:	0f be 07             	movsbl (%edi),%eax
      632:	83 ec 08             	sub    $0x8,%esp
      635:	50                   	push   %eax
-     636:	68 e0 1f 00 00       	push   $0x1fe0
+     636:	68 f0 1f 00 00       	push   $0x1ff0
      63b:	e8 70 07 00 00       	call   db0 <strchr>
      640:	83 c4 10             	add    $0x10,%esp
      643:	85 c0                	test   %eax,%eax
@@ -854,7 +854,7 @@ peek(char **ps, char *es, char *toks)
      6d7:	0f be 03             	movsbl (%ebx),%eax
      6da:	83 ec 08             	sub    $0x8,%esp
      6dd:	50                   	push   %eax
-     6de:	68 e0 1f 00 00       	push   $0x1fe0
+     6de:	68 f0 1f 00 00       	push   $0x1ff0
      6e3:	e8 c8 06 00 00       	call   db0 <strchr>
      6e8:	83 c4 10             	add    $0x10,%esp
      6eb:	85 c0                	test   %eax,%eax
@@ -1524,7 +1524,7 @@ nulterminate(struct cmd *cmd)
      b9e:	83 3b 05             	cmpl   $0x5,(%ebx)
      ba1:	77 24                	ja     bc7 <nulterminate+0x37>
      ba3:	8b 03                	mov    (%ebx),%eax
-     ba5:	ff 24 85 c8 18 00 00 	jmp    *0x18c8(,%eax,4)
+     ba5:	ff 24 85 b8 18 00 00 	jmp    *0x18b8(,%eax,4)
      bac:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
     nulterminate(pcmd->right);
     break;
@@ -2302,7 +2302,7 @@ printint(int fd, int xx, int base, int sgn, int width, char pad_char)
     1044:	89 7d c4             	mov    %edi,-0x3c(%ebp)
     1047:	83 c7 01             	add    $0x1,%edi
     104a:	f7 f3                	div    %ebx
-    104c:	0f b6 92 90 19 00 00 	movzbl 0x1990(%edx),%edx
+    104c:	0f b6 92 a0 19 00 00 	movzbl 0x19a0(%edx),%edx
     1053:	88 14 3e             	mov    %dl,(%esi,%edi,1)
   }while((x /= base) != 0);
     1056:	89 ca                	mov    %ecx,%edx
@@ -2521,7 +2521,7 @@ printf(char *fmt, ...)
     11e7:	83 e8 63             	sub    $0x63,%eax
     11ea:	83 f8 15             	cmp    $0x15,%eax
     11ed:	77 11                	ja     1200 <printf+0x70>
-    11ef:	ff 24 85 e0 18 00 00 	jmp    *0x18e0(,%eax,4)
+    11ef:	ff 24 85 f0 18 00 00 	jmp    *0x18f0(,%eax,4)
     11f6:	2e 8d b4 26 00 00 00 	lea    %cs:0x0(%esi,%eiz,1),%esi
     11fd:	00 
     11fe:	66 90                	xchg   %ax,%ax
@@ -2611,7 +2611,7 @@ printf(char *fmt, ...)
     129d:	0f 85 9d 01 00 00    	jne    1440 <printf+0x2b0>
     12a3:	c6 45 d0 28          	movb   $0x28,-0x30(%ebp)
           s = "(null)";
-    12a7:	b8 a9 18 00 00       	mov    $0x18a9,%eax
+    12a7:	b8 96 18 00 00       	mov    $0x1896,%eax
         int len = 0;
     12ac:	31 db                	xor    %ebx,%ebx
     12ae:	66 90                	xchg   %ax,%ax
@@ -2838,7 +2838,7 @@ fprintf(int fd, char *fmt, ...)
     14b8:	83 e8 63             	sub    $0x63,%eax
     14bb:	83 f8 15             	cmp    $0x15,%eax
     14be:	77 10                	ja     14d0 <fprintf+0x60>
-    14c0:	ff 24 85 38 19 00 00 	jmp    *0x1938(,%eax,4)
+    14c0:	ff 24 85 48 19 00 00 	jmp    *0x1948(,%eax,4)
     14c7:	2e 8d b4 26 00 00 00 	lea    %cs:0x0(%esi,%eiz,1),%esi
     14ce:	00 
     14cf:	90                   	nop
@@ -3008,7 +3008,7 @@ fprintf(int fd, char *fmt, ...)
     1639:	6a 01                	push   $0x1
     163b:	e9 b4 fe ff ff       	jmp    14f4 <fprintf+0x84>
           s = "(null)";
-    1640:	bf a9 18 00 00       	mov    $0x18a9,%edi
+    1640:	bf 96 18 00 00       	mov    $0x1896,%edi
     1645:	b8 28 00 00 00       	mov    $0x28,%eax
     164a:	e9 fd fe ff ff       	jmp    154c <fprintf+0xdc>
     164f:	66 90                	xchg   %ax,%ax
