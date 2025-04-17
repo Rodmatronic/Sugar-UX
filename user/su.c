@@ -62,10 +62,10 @@ int main() {
 
   if (match) {
     int uid = atoi(fields[2]);
-    //if (setuid(uid) < 0) {
+    if (setuid(uid) < 0) {
       //fprintf(2, "su: permission denied\n");
       //exit();
-    //}
+    }
     char *argv[] = { "sh", 0 };
     exec("/bin/sh", argv);
     fprintf(2, "su: exec failed\n");

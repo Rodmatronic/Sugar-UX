@@ -4,6 +4,10 @@
 #include "../sys/user.h"
 #include "../sys/fcntl.h"
 
+#define SEEK_SET 0  // Seek from start of file
+#define SEEK_CUR 1  // Seek from current position
+#define SEEK_END 2  // Seek from end of file
+
 // Parsed command representation
 #define EXEC  1
 #define REDIR 2
@@ -24,12 +28,13 @@ struct execcmd {
 };
 
 struct redircmd {
-  int type;
-  struct cmd *cmd;
-  char *file;
-  char *efile;
-  int mode;
-  int fd;
+  int type;          // REDIR
+  struct cmd *cmd;   // command to redirect
+  char *file;        // filename
+  char *efile;       // end of filename (for parsing)
+  int mode;          // file open mode (e.g., O_WRONLY)
+  int fd;            // file descriptor (e.g., 1 for stdout)
+  int append;        // flag for append mode (>>)
 };
 
 struct pipecmd {
@@ -99,15 +104,22 @@ case EXEC:
   break;
 
 
-  case REDIR:
-    rcmd = (struct redircmd*)cmd;
+  case REDIR: {
+    struct redircmd *rcmd = (struct redircmd*)cmd;
     close(rcmd->fd);
-    if(open(rcmd->file, rcmd->mode) < 0){
+    int fd = open(rcmd->file, rcmd->mode);
+    if (fd < 0) {
       printf("open %s failed\n", rcmd->file);
       exit();
     }
+    if (rcmd->append) {
+      // Read entire file to advance offset to EOF
+      char buf[512];
+      while (read(fd, buf, sizeof(buf)) > 0) {} // Read until EOF
+    }
     runcmd(rcmd->cmd);
     break;
+  }
 
   case LIST:
     lcmd = (struct listcmd*)cmd;
@@ -153,7 +165,11 @@ case EXEC:
 int
 getcmd(char *buf, int nbuf)
 {
-  printf("# ");
+  if (getuid() == 0) {
+    printf("(root)# ");
+  } else {
+    printf("# ");
+  }
   memset(buf, 0, nbuf);
   gets(buf, nbuf);
   if(buf[0] == 0) // EOF
@@ -226,10 +242,8 @@ execcmd(void)
 }
 
 struct cmd*
-redircmd(struct cmd *subcmd, char *file, char *efile, int mode, int fd)
-{
+redircmd(struct cmd *subcmd, char *file, char *efile, int mode, int fd, int append) {
   struct redircmd *cmd;
-
   cmd = malloc(sizeof(*cmd));
   memset(cmd, 0, sizeof(*cmd));
   cmd->type = REDIR;
@@ -238,6 +252,7 @@ redircmd(struct cmd *subcmd, char *file, char *efile, int mode, int fd)
   cmd->efile = efile;
   cmd->mode = mode;
   cmd->fd = fd;
+  cmd->append = append;  // store append flag
   return (struct cmd*)cmd;
 }
 
@@ -405,13 +420,13 @@ parseredirs(struct cmd *cmd, char **ps, char *es)
       panic("missing file for redirection");
     switch(tok){
     case '<':
-      cmd = redircmd(cmd, q, eq, O_RDONLY, 0);
+      cmd = redircmd(cmd, q, eq, O_RDONLY, 0, 0);
       break;
     case '>':
-      cmd = redircmd(cmd, q, eq, O_WRONLY|O_CREATE, 1);
+      cmd = redircmd(cmd, q, eq, O_WRONLY|O_CREATE, 1, 0);
       break;
     case '+':  // >>
-      cmd = redircmd(cmd, q, eq, O_WRONLY|O_CREATE, 1);
+      cmd = redircmd(cmd, q, eq, O_RDWR|O_CREATE, 1, 1);
       break;
     }
   }
