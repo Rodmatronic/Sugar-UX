@@ -107,13 +107,12 @@ void ls(char *path) {
 
         int terminal_width = 80;
         int col_width = max_len + 2;
-        int cols = terminal_width / col_width;
+        int cols = terminal_width / col_width -2;
+
         if (cols == 0)
             cols = 1;
 
-        int rows = (num_entries + cols - 1) / cols;
-
-	if (cols > 5){cols = 5;}
+        int rows = (num_entries + cols - 2) / cols;
 
         for (i = 0; i < rows; i++) {
             for (j = 0; j < cols; j++) {

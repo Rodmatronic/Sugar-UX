@@ -1,3 +1,8 @@
+#ifndef PROC_H
+#define PROC_H
+
+#include "spinlock.h"
+
 // Per-CPU state
 struct cpu {
   uchar apicid;                // Local APIC ID
@@ -36,6 +41,7 @@ enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
 // Per-process state
 struct proc {
+  int uid;                     // User ID
   uint sz;                     // Size of process memory (bytes)
   pde_t* pgdir;                // Page table
   char *kstack;                // Bottom of kernel stack for this process
@@ -51,6 +57,13 @@ struct proc {
   char name[16];               // Process name (debugging)
 };
 
+struct ptable {
+  struct spinlock lock;
+  struct proc proc[NPROC];
+};
+
+extern struct ptable ptable; // Declared ptable as an extern variable of this type to avoid proc.c conflict
+
 void console_echo(int enable);
 int sys_uptime(void);
 
@@ -59,3 +72,5 @@ int sys_uptime(void);
 //   original data and bss
 //   fixed-size stack
 //   expandable heap
+
+#endif

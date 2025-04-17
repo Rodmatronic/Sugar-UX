@@ -1,5 +1,10 @@
+#ifndef USER_H
+#define USER_H
+
 struct stat;
 struct rtcdate;
+
+#include "types.h"
 
 // system calls
 int  fork(void);
@@ -27,11 +32,11 @@ int  bstat(void);
 int  swap(void*);
 
 // ulib.c
-int	stat(char*, struct stat*);
+int	    stat(char*, struct stat*);
 char*	strcpy(char*, char*);
 void*	memmove(void*, void*, int);
 char*	strchr(const char*, char c);
-int	strcmp(const char*, const char*);
+int	    strcmp(const char*, const char*);
 void	printf(char*, ...);
 void	fprintf(int fd, char*, ...);
 char*	gets(char*, int max);
@@ -39,10 +44,14 @@ uint	strlen(char*);
 void*	memset(void*, int, uint);
 void*	malloc(uint);
 void	free(void*);
-int	atoi(const char*);
+int	    atoi(const char*);
 
-int	gettime(struct rtcdate*);
+int	    gettime(struct rtcdate*);
 void	setcursor(void);
-int	uname(struct utsname *);
+int	    uname(struct utsname *);
 void	strncpy(char *dest, const char *src, int n);
-int	echo(int enable);
+int	    echo(int enable);
+int     getuid(void);
+int     setuid(int);
+
+#endif

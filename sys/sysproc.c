@@ -8,6 +8,23 @@
 #include "proc.h"
 
 int
+sys_getuid(void) {
+  return myproc()->uid;
+}
+
+int
+sys_setuid(void) {
+  int uid;
+  if (argint(0, &uid) < 0) return -1;
+
+  struct proc *p = myproc();
+  // Allow only root (UID 0) to change UID
+  //if (p->uid != 0) return -1;
+  p->uid = uid;
+  return 0;
+}
+
+int
 sys_echo(void) {
   int enable;
   if (argint(0, &enable) < 0) return -1;
@@ -27,7 +44,7 @@ int sys_uname(void) {
   // Copy strings to user space
   safestrcpy(u->sysname, "Sugar/Unix", sizeof(u->sysname));
   safestrcpy(u->nodename, "localhost", sizeof(u->nodename)); // TODO: Make this use hostname.
-  safestrcpy(u->release, "0.11-RELEASE", sizeof(u->release));
+  safestrcpy(u->release, "0.12-RELEASE", sizeof(u->release));
   safestrcpy(u->version, "Sugar/Unix (Codename ALFA)", sizeof(u->version));
   safestrcpy(u->machine, "i386", sizeof(u->machine));
 
@@ -64,13 +81,23 @@ sys_wait(void)
 }
 
 int
-sys_kill(void)
-{
+sys_kill(void) {
   int pid;
+  if (argint(0, &pid) < 0) return -1;
 
-  if(argint(0, &pid) < 0)
-    return -1;
-  return kill(pid);
+  struct proc *p;
+  struct proc *current = myproc();
+
+  for (p = ptable.proc; p < &ptable.proc[NPROC]; p++) {
+    if (p->pid == pid) {
+      // Check if current user is root or the owner
+      if (current->uid != 0 && current->uid != p->uid) return -1;
+      p->killed = 1;
+      if (p->state == SLEEPING) p->state = RUNNABLE;
+      return 0;
+    }
+  }
+  return -1;
 }
 
 int

@@ -8,10 +8,7 @@
 #include "spinlock.h"
 #include "paging.h"
 
-struct {
-  struct spinlock lock;
-  struct proc proc[NPROC];
-} ptable;
+struct ptable ptable;
 
 static struct proc *initproc;
 
@@ -89,6 +86,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->uid = 0;
 
   release(&ptable.lock);
 
@@ -124,13 +122,16 @@ userinit(void)
   struct proc *p;
   //extern char _binary_initcode_start[], _binary_initcode_size[];
 
+  p = allocproc();
+  p->uid = 0; // Initialize as root
+
   extern char _binary_initcode_start[], _binary_initcode_end[];
 
   nullinit();
   kminit();
   zeroinit();
 
-  p = allocproc();
+  //p = allocproc();
 
   initproc = p;
   if((p->pgdir = setupkvm()) == 0)
@@ -179,15 +180,19 @@ growproc(int n)
 int
 fork(void)
 {
-  
   int i, pid;
   struct proc *np;
   struct proc *curproc = myproc();
 
-  // Allocate process.
-  if((np = allocproc()) == 0){
+  //acquire(&ptable.lock);
+
+  np = allocproc();
+  if (!np) {
+    release(&ptable.lock);
     return -1;
   }
+
+  np->uid = curproc->uid; // Inherit UID
 
   // Copy process state from proc.
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
@@ -212,10 +217,12 @@ fork(void)
 
   pid = np->pid;
 
-  acquire(&ptable.lock);
+  //acquire(&ptable.lock);
 
   np->state = RUNNABLE;
 
+  acquire(&ptable.lock);
+  np->state = RUNNABLE;
   release(&ptable.lock);
 
   return pid;

@@ -26,3 +26,5 @@
 #define SYS_setcursor 25
 #define SYS_uname     26
 #define SYS_echo      27
+#define SYS_getuid    28
+#define SYS_setuid    29

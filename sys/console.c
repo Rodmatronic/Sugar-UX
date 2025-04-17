@@ -122,7 +122,8 @@ panic(char *s)
   int total_seconds = ticks / 100;  // Convert ticks to seconds
   int minutes = total_seconds / 60;
   int seconds = total_seconds % 60;
-  cprintf("uptime: %dm%ds\n", minutes, seconds);
+  cprintf("\nuptime: %dm%ds\n", minutes, seconds);
+  cprintf("System Halted. Please contact your System Administrator with the above info.");
 
   panicked = 1; // freeze other CPU
   for(;;);

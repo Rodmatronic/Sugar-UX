@@ -64,7 +64,6 @@ main(void)
   printf("clearing /tmp\n");
   unlink("/tmp"); mkdir("/tmp");
 
-
   /*
    *
    * TODO: Don't let me work on this at 3 in the morning
@@ -80,14 +79,15 @@ main(void)
     printf("Failed to create file\n");
   }
   char *issue = "Sugar/Unix 0.11 (Codename ALFA)\n";
-  write(fd, issue, 34);
+  write(fd, issue, 32);
 
   fd = open("/etc/passwd", O_WRONLY | O_CREATE);
   if (fd < 0) {
     printf("Failed to create file\n");
   }
-  char *passwd = "root:root:0:0:Super User:/:/bin/sh\n";
-  write(fd, passwd, 40);
+  char *passwd = "root:root:0:0:Super User:/:/bin/sh\nsugar::1000:1000:Default User:/:/bin/sh\n";
+
+  write(fd, passwd, 75);
 
   fd = open("/etc/motd", O_WRONLY | O_CREATE);
   if (fd < 0) {
@@ -110,7 +110,7 @@ main(void)
            r.second,
            r.year);
   }
-  printf("\nSugar/Unix login (Root password is 'root')\n\n");
+  printf("\nSugar/Unix login\n(Default user is 'sugar' with blank pass. Root pass is 'root')\n");
 
   for(;;){
     pid = fork();

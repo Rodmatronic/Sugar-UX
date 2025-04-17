@@ -54,42 +54,50 @@ int main() {
         printf("Error: Cannot open passwd file\n");
         exit();
     }
-
-    // Read file line-by-line
-    while (read(fd, line, MAX_LINE) > 0) {
-        char *p = line;
-        char *fields[7];
-
-        // Split line into colon-separated fields
-        for (int i = 0; i < 7; i++) {
-            fields[i] = p;
-            while (*p && *p != ':' && *p != '\n') p++;
-            *p++ = 0;  // Terminate field
-        }
-
-        // Check username and password (fields 0 and 1)
-        if (strcmp(fields[0], user) == 0 && strcmp(fields[1], pass) == 0) {
-            match = 1;
-            break;
+    char *fields[7];
+    char c;
+    int pos = 0;
+    while (read(fd, &c, 1) == 1) {
+        // Accumulate characters until newline or buffer full
+        if (c != '\n' && pos < MAX_LINE - 1) {
+            line[pos++] = c;
+        } else {
+            line[pos] = 0;  // Null-terminate the line
+            pos = 0;
+    
+            // Split line into colon-separated fields
+            char *p = line;
+            for (int i = 0; i < 7; i++) {
+                fields[i] = p;
+                while (*p && *p != ':' && *p != '\n') p++;
+                *p++ = 0;  // Terminate field
+            }
+    
+            // Check username and password (fields 0 and 1)
+            if (strcmp(fields[0], user) == 0 && strcmp(fields[1], pass) == 0) {
+                match = 1;
+                break;
+            }
         }
     }
     close(fd);
     if (match) {
-	// Print the date
-	struct rtcdate r;
-	if (gettime(&r) == 0) {
-	  printf("%02s %02s %02d %02d:%02d:%02d\n",
-	         get_weekday(r.year, r.month, r.day),
-	         monthname(r.month),
-	         r.day,
-	         r.hour,
-	         r.minute,
-	         r.second);
-	}
-	// Banner
-	struct utsname name;
-	uname(&name);
-	printf("%s %s (%s)\n", name.version, name.release, name.nodename);
+        int uid = atoi(fields[2]);
+	      // Print the date
+	      struct rtcdate r;
+	      if (gettime(&r) == 0) {
+	          printf("%02s %02s %02d %02d:%02d:%02d\n",
+	          get_weekday(r.year, r.month, r.day),
+	          monthname(r.month),
+	          r.day,
+	          r.hour,
+	          r.minute,
+	          r.second);
+	      }
+	      // Banner
+	      struct utsname name;
+	      uname(&name);
+	      printf("%s %s (%s)\n", name.version, name.release, name.nodename);
         // Display MOTD if available
         int motd_fd = open("/etc/motd", 0);
         if (motd_fd >= 0) {
@@ -102,15 +110,22 @@ int main() {
             close(motd_fd);
             printf("\n");
         }
-
+        if (uid == 0) {
+            printf("Don't login as root, use the su command.\n");
+        }
         // Start shell
         int pid = fork();
         if (pid == 0) {
+            // Child process
+            if (setuid(uid) < 0) {
+                printf("login: setuid failed\n");
+                exit();
+            }
             exec("/bin/sh", argv);
             printf("login: exec sh failed\n");
             exit();
         }
-        while (wait() != pid);  // Proper waiting
+        while (wait() != pid);
 
     } else {
         printf("Login incorrect\n");
