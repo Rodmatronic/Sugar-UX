@@ -4,3 +4,4 @@ _*
 *.img
 *.sym
 out/
+.vscode/
