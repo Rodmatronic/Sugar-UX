@@ -93,8 +93,8 @@ main(void)
   if (fd < 0) {
     printf("Failed to create file\n");
   }
-  char *entry = "\nWelcome to Sugar/Unix!\n";
-  write(fd, entry, 24);
+  char *entry = "\nWelcome to Sugar/Unix!\n\nSugar/Unix version: 'uname -a'\nReporting problems: 'https:/www.github.com/rodmatronic/Sugar-UX/issues'\n\nTo change this login announcement, edit '/etc/motd'\n";
+  write(fd, entry, 181);
 
   close(fd);
 

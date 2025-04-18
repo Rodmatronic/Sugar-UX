@@ -155,10 +155,10 @@ cgaputc(int colour, int c)
   if(pos < 0 || pos > 25*80)
     panic("pos under/overflow");
 
-  if((pos/80) >= 24){  // Scroll up.
-    memmove(crt, crt+80, sizeof(crt[0])*23*80);
+  if((pos/80) >= 25){  // Scroll up.
+    memmove(crt, crt+80, sizeof(crt[0])*24*80);
     pos -= 80;
-    memset(crt+pos, 0, sizeof(crt[0])*(24*80 - pos));
+    memset(crt+pos, 0, sizeof(crt[0])*(25*80 - pos));
   }
 
   outb(CRTPORT, 14);

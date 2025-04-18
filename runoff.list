@@ -1,77 +1,77 @@
 # basic headers
-types.h
-param.h
-memlayout.h
-defs.h
-x86.h
-asm.h
-mmu.h
-elf.h
+sys/types.h
+sys/param.h
+sys/memlayout.h
+sys/defs.h
+sys/x86.h
+sys/asm.h
+sys/mmu.h
+sys/elf.h
 
 # entering xv6
-entry.S
-entryother.S
-main.c
+sys/entry.S
+sys/entryother.S
+sys/main.c
 
 # locks
-spinlock.h
-spinlock.c
+sys/spinlock.h
+sys/spinlock.c
 
 # processes
-vm.c
-proc.h
-proc.c
-swtch.S
-kalloc.c
+sys/vm.c
+sys/proc.h
+sys/proc.c
+sys/swtch.S
+sys/kalloc.c
 
 # system calls
-traps.h
-vectors.pl
-trapasm.S
-trap.c
-syscall.h
-syscall.c
-sysproc.c
+sys/traps.h
+sys/vectors.pl
+sys/trapasm.S
+sys/trap.c
+sys/syscall.h
+sys/syscall.c
+sys/sysproc.c
 
 # file system
-buf.h
-sleeplock.h
-fcntl.h
-stat.h
-fs.h
-file.h
-ide.c
-bio.c
-sleeplock.c
-log.c
-fs.c
-file.c
-sysfile.c
-exec.c
+sys/buf.h
+sys/sleeplock.h
+sys/fcntl.h
+sys/stat.h
+sys/fs.h
+sys/file.h
+sys/ide.c
+sys/bio.c
+sys/sleeplock.c
+sys/log.c
+sys/fs.c
+sys/file.c
+sys/sysfile.c
+sys/exec.c
 
 # pipes
-pipe.c
+sys/pipe.c
 
 # string operations
-string.c
+sys/string.c
 
 # low-level hardware
-mp.h
-mp.c
-lapic.c
-ioapic.c
-kbd.h
-kbd.c
-console.c
-uart.c
+sys/mp.h
+sys/mp.c
+sys/lapic.c
+sys/ioapic.c
+sys/kbd.h
+sys/kbd.c
+sys/console.c
+sys/uart.c
 
 # user-level
-initcode.S
-usys.S
-init.c
-sh.c
+sys/initcode.S
+sys/usys.S
+user/init.c
+user/sh.c
 
 # bootloader
-bootasm.S
-bootmain.c
+sys/bootasm.S
+sys/bootmain.c
 
