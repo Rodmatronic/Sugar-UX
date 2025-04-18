@@ -85,9 +85,9 @@ main(void)
   if (fd < 0) {
     printf("Failed to create file\n");
   }
-  char *passwd = "root:root:0:0:Super User:/:/bin/sh\nsugar::1000:1000:Default User:/:/bin/sh\n";
+  char *passwd = "root:root:0:0:Super User:/root:/bin/sh\nsugar::1000:1000:Default User:/home/sugar:/bin/sh\n";
 
-  write(fd, passwd, 75);
+  write(fd, passwd, 89);
 
   fd = open("/etc/motd", O_WRONLY | O_CREATE);
   if (fd < 0) {

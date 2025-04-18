@@ -113,6 +113,9 @@ int main() {
         if (uid == 0) {
             printf("Don't login as root, use the su command.\n");
         }
+        if (chdir(fields[5])) {
+            printf("No home directory, defaulting to '/'\n");
+        }
         // Start shell
         int pid = fork();
         if (pid == 0) {
@@ -121,7 +124,7 @@ int main() {
                 printf("login: setuid failed\n");
                 exit();
             }
-            exec("/bin/sh", argv);
+            exec(fields[6], argv);
             printf("login: exec sh failed\n");
             exit();
         }

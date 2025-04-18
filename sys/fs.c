@@ -274,12 +274,15 @@ iupdate(struct inode *ip)
   struct dinode *dip;
 
   bp = bread(ip->dev, IBLOCK(ip->inum, sb));
+
   dip = (struct dinode*)bp->data + ip->inum%IPB;
   dip->type = ip->type;
   dip->major = ip->major;
   dip->minor = ip->minor;
   dip->nlink = ip->nlink;
   dip->size = ip->size;
+  dip->uid = ip->uid;
+
   memmove(dip->addrs, ip->addrs, sizeof(ip->addrs));
   log_write(bp);
   brelse(bp);
@@ -316,6 +319,7 @@ iget(uint dev, uint inum)
   ip->inum = inum;
   ip->ref = 1;
   ip->valid = 0;
+  ip->uid = ip->uid;
   release(&icache.lock);
 
   return ip;

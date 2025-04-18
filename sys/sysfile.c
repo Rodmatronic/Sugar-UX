@@ -239,6 +239,15 @@ sys_unlink(void)
     goto bad;
   ilock(ip);
 
+  struct proc *p = myproc();
+  // Check if user is not root and doesn't own the file
+  if(p->uid != 0 && ip->uid != p->uid) {
+    iunlockput(ip);  // Release the file inode
+    iunlockput(dp);  // Release the directory inode
+    end_op();
+    return -1;
+  }
+
   if(ip->nlink < 1)
     panic("unlink: nlink < 1");
   if(ip->type == T_DIR && !isdirempty(ip)){
@@ -249,10 +258,7 @@ sys_unlink(void)
   memset(&de, 0, sizeof(de));
   if(writei(dp, (char*)&de, off, sizeof(de)) != sizeof(de))
     panic("unlink: writei");
-  if(ip->type == T_DIR){
-    dp->nlink--;
-    iupdate(dp);
-  }
+
   iunlockput(dp);
 
   ip->nlink--;
@@ -293,6 +299,11 @@ create(char *path, short type, short major, short minor)
     panic("create: ialloc");
 
   ilock(ip);
+
+  struct proc *p = 
+  myproc();
+  ip->uid = p->uid;
+
   ip->major = major;
   ip->minor = minor;
   ip->nlink = 1;
@@ -407,15 +418,22 @@ sys_chdir(void)
   struct inode *ip;
   struct proc *curproc = myproc();
 
-  begin_op();
-  if(argstr(0, &path) < 0 || (ip = namei(path)) == 0){
-    end_op();
+  if(argstr(0, &path) < 0) {
     return -1;
   }
+
+  begin_op();
+  if((ip = namei(path)) == 0){
+    end_op();
+    cprintf("%s: no such file or directory\n", path);
+    return -1;
+  }
+
   ilock(ip);
   if(ip->type != T_DIR){
     iunlockput(ip);
     end_op();
+    cprintf("chdir: not a directory\n");
     return -1;
   }
   iunlock(ip);

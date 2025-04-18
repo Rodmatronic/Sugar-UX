@@ -72,7 +72,8 @@ main(int argc, char *argv[])
   struct dirent de;
   char buf[BSIZE];
   struct dinode din;
-
+  struct dinode root_ino;
+  struct dinode sugar_ino;
 
   static_assert(sizeof(int) == 4, "Integers must be 4 bytes!");
 
@@ -116,6 +117,11 @@ main(int argc, char *argv[])
 
   rootino = ialloc(T_DIR);
   assert(rootino == ROOTINO);
+  
+  // Set UID for root directory
+  rinode(rootino, &root_ino); // Read dinode from disk
+  root_ino.uid = 0;           // Set UID to root
+  winode(rootino, &root_ino); // Write back to disk
 
   bzero(&de, sizeof(de));
   de.inum = xshort(rootino);
@@ -164,6 +170,48 @@ main(int argc, char *argv[])
   de.inum = xshort(rootino);
   strcpy(de.name, "..");
   iappend(usrino, &de, sizeof(de));
+
+  // Add 'home' entry to root directory
+  uint homeino = ialloc(T_DIR);
+  assert(homeino != 0);
+  
+  bzero(&de, sizeof(de));
+  de.inum = xshort(homeino);
+  strcpy(de.name, "home");
+  iappend(rootino, &de, sizeof(de));
+
+  bzero(&de, sizeof(de));
+  de.inum = xshort(homeino);
+  strcpy(de.name, ".");
+  iappend(homeino, &de, sizeof(de));
+
+  bzero(&de, sizeof(de));
+  de.inum = xshort(rootino);
+  strcpy(de.name, "..");
+  iappend(homeino, &de, sizeof(de));
+
+  // Add 'sugar' entry to home directory
+  uint sugarino = ialloc(T_DIR);
+  assert(homeino != 0);
+  
+  bzero(&de, sizeof(de));
+  de.inum = xshort(sugarino);
+  strcpy(de.name, "sugar");
+  iappend(homeino, &de, sizeof(de));
+
+  bzero(&de, sizeof(de));
+  de.inum = xshort(sugarino);
+  strcpy(de.name, ".");
+  iappend(sugarino, &de, sizeof(de));
+
+  bzero(&de, sizeof(de));
+  de.inum = xshort(homeino);
+  strcpy(de.name, "..");
+  iappend(sugarino, &de, sizeof(de));
+  
+  rinode(sugarino, &sugar_ino); // Read dinode from disk
+  sugar_ino.uid = 0;           // Set UID to sugar
+  winode(sugarino, &sugar_ino);
 
 for (i = 2; i < argc; i++) {
     assert(index(argv[i], '/') == 0); // No slashes

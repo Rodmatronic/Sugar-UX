@@ -1,7 +1,7 @@
 #ifndef FILE_H
 #define FILE_H
 
-#define NDIRECT 12
+#define NDIRECT 11
 
 #include "sleeplock.h"
 
@@ -29,6 +29,7 @@ struct inode {
   short nlink;
   uint size;
   uint addrs[NDIRECT+1];
+  uint uid;
 };
 
 // table mapping major device number to
