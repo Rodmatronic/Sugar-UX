@@ -14,7 +14,7 @@ main(int argc, char *argv[])
 
   for(i = 1; i < argc; i++){
     if(unlink(argv[i]) < 0){
-      printf("%s: No such file or directory\n", argv[i]);
+      printf("rm: failed to delete %s\n", argv[i]);
       break;
     }
   }
