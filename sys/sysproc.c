@@ -71,6 +71,7 @@ int
 sys_exit(void)
 {
   exit();
+  panic("exit: system call returned");
   return 0;  // not reached
 }
 

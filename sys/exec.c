@@ -23,7 +23,7 @@ exec(char *path, char **argv)
 
   if((ip = namei(path)) == 0){
     end_op();
-//    cprintf("exec: fail\n");
+    cprintf("exec: fail\n");
     return -1;
   }
   ilock(ip);
@@ -60,14 +60,20 @@ exec(char *path, char **argv)
   end_op();
   ip = 0;
 
-  // Allocate two pages at the next page boundary.
-  // Make the first inaccessible.  Use the second as the user stack.
+  // Allocate three pages: guard, exit stub, and user stack.
   sz = PGROUNDUP(sz);
-  if((sz = allocuvm(pgdir, sz, sz + 2*PGSIZE)) == 0)
+  uint guard_sz = sz;
+  if((sz = allocuvm(pgdir, sz, sz + 3*PGSIZE)) == 0)
     goto bad;
-  clearpteu(pgdir, (char*)(sz - 2*PGSIZE));
-  sp = sz;
+  clearpteu(pgdir, (char*)guard_sz); // Guard page (inaccessible)
+  uint exit_stub_addr = guard_sz + PGSIZE; // Exit stub page
+  sp = guard_sz + 2*PGSIZE; // User stack starts here
 
+  // Write exit stub code: mov $SYS_exit, %eax; int $T_SYSCALL
+  char exit_stub[] = { 0xB8, 2, 0, 0, 0, 0xCD, 0x40 }; // Adjust SYS_exit if needed
+  if(copyout(pgdir, exit_stub_addr, exit_stub, sizeof(exit_stub)) < 0)
+    goto bad;
+  
   // Push argument strings, prepare rest of stack in ustack.
   for(argc = 0; argv[argc]; argc++) {
     if(argc >= MAXARG)
@@ -79,12 +85,12 @@ exec(char *path, char **argv)
   }
   ustack[3+argc] = 0;
 
-  ustack[0] = 0xffffffff;  // fake return PC
+  ustack[0] = exit_stub_addr;
   ustack[1] = argc;
   ustack[2] = sp - (argc+1)*4;  // argv pointer
 
   sp -= (3+argc+1) * 4;
-  if(copyout(pgdir, sp, ustack, (3+argc+1)*4) < 0)
+ if(copyout(pgdir, sp, ustack, (3+argc+1)*4) < 0)
     goto bad;
 
   // Save program name for debugging.
