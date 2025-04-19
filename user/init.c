@@ -44,19 +44,23 @@ main(void)
     exit();
   }
 
+  // boot-time directories
   mkdir("/dev");
   mkdir("/var");
 
+  // /dev/console is essential, do checks
   if(open("/dev/console", O_RDWR) < 0){
     mknod("/dev/console", 1, 1);
     open("/dev/console", O_RDWR);
   }
 
+  // Make device nodes. NOTE: random and urandom are identical.
   mknod("/dev/null", 2, 0);
   mknod("/dev/kmem", 3, 0);
   mknod("/dev/zero", 4, 0);
   mknod("/dev/random", 5, 0);
-  
+  link("/dev/random", "/dev/urandom");
+
   mkdir("/root");
   mkdir("/etc");
 

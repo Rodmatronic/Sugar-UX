@@ -178,9 +178,9 @@ int
 getcmd(char *buf, int nbuf)
 {
   if (getuid() == 0) {
-    printf("(root)# ");
-  } else {
     printf("# ");
+  } else {
+    printf("$ ");
   }
   memset(buf, 0, nbuf);
   gets(buf, nbuf);

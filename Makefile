@@ -227,7 +227,7 @@ QEMUGDB = $(shell if $(QEMU) -help | grep -q '^-gdb'; \
 ifndef CPUS
 CPUS := 2
 endif
-QEMUOPTS = -accel tcg --no-reboot -drive file=$(OUT_DIR)/fs.img,index=1,media=disk,format=raw -drive file=$(OUT_DIR)/xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m 4 $(QEMUEXTRA)
+QEMUOPTS = -accel kvm --no-reboot -drive file=$(OUT_DIR)/fs.img,index=1,media=disk,format=raw -drive file=$(OUT_DIR)/xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m 4 $(QEMUEXTRA)
 
 qemu: $(OUT_DIR)/fs.img $(OUT_DIR)/xv6.img
 #	$(QEMU) $(QEMUOPTS)
