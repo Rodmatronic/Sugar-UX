@@ -207,7 +207,8 @@ clean:
 	rm -rf $(OUT_DIR)/*
 	rm -f xv6.img $(OUT_DIR)/*.img
 	rm -r ./user/*.d &
-	rm -r ./user/*.o
+	rm -r ./user/*.o &
+	rm -r ./sys/*.asm &
 
 .PHONY: clean dist-test dist
 
