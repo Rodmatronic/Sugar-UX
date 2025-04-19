@@ -425,7 +425,7 @@ sys_chdir(void)
   begin_op();
   if((ip = namei(path)) == 0){
     end_op();
-    cprintf("%s: no such file or directory\n", path);
+    kprintf("%s: no such file or directory\n", path);
     return -1;
   }
 
@@ -433,7 +433,7 @@ sys_chdir(void)
   if(ip->type != T_DIR){
     iunlockput(ip);
     end_op();
-    cprintf("chdir: not a directory\n");
+    kprintf("chdir: not a directory\n");
     return -1;
   }
   iunlock(ip);

@@ -20,7 +20,7 @@ char * bootbanner = "Copyright (c) 2006-2018 Frans Kaashoek, Robert Morris, Russ
 int
 main(void)
 {
-  cprintf("%s", bootbanner);
+  kprintf("%s", bootbanner);
   enablecur(0, 16);
   kinit1(end, P2V(4*1024*1024)); // phys page allocator
   kvmalloc();      // kernel page table
@@ -65,7 +65,7 @@ mpenter(void)
 static void
 mpmain(void)
 {
-  cprintf("cpu%d: starting %d\n", cpuid(), cpuid());
+  kprintf("cpu%d: starting %d\n", cpuid(), cpuid());
   idtinit();       // load idt register
   xchg(&(mycpu()->started), 1); // tell startothers() we're up
   scheduler();     // start running processes

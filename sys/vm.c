@@ -340,11 +340,11 @@ select_a_victim(pde_t *pgdir)
       }
       else{
 
-        cprintf("walkpgdir failed \n ");
+        kprintf("walkpgdir failed \n ");
       }
 	}
 
-  cprintf("bahar aa gaya  ");
+  kprintf("bahar aa gaya  ");
   return 0;
 }
 
@@ -355,20 +355,20 @@ clearaccessbit(pde_t *pgdir)
   int count=0;
   for(long i=4096;i<KERNBASE;i+=PGSIZE){
       if((pte=walkpgdir(pgdir,(char*)i,0))!= 0){
-        cprintf("walkpkgdir mei");
+        kprintf("walkpkgdir mei");
         if((*pte & PTE_P) & (*pte & PTE_A)){
         // if((*pte & PTE_P) & (*pte & PTE_A)) { //access bit is 1
             *pte &= ~PTE_A;
             count=count+1;
             if(count<103){
-              cprintf("103 se kam hai");
+              kprintf("103 se kam hai");
             }
             else{
-              cprintf("103 se zyaada ho gya");
+              kprintf("103 se zyaada ho gya");
             }
         }
     }
-    cprintf("chalo vappis");
+    kprintf("chalo vappis");
     if(count==103)   //10% of the 1024 pages cleared
       return;
   }
@@ -445,7 +445,7 @@ copyuvm(pde_t *pgdir, uint sz)
       swap_page(pgdir);
       mem=kalloc();
       if(mem==0)
-        cprintf("unable to get memory in copyuvm");
+        kprintf("unable to get memory in copyuvm");
     }
 
     memmove(mem, (char*)P2V(pa), PGSIZE);

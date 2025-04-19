@@ -58,7 +58,7 @@ ideinit(void)
 
   // Check if disk 1 is present
   outb(0x1f6, 0xe0 | (1<<4));
-  cprintf("Waiting on root device...\n");
+  kprintf("Waiting on root device...\n");
   for(i=0; i<1000; i++){
     if(inb(0x1f7) != 0){
       havedisk1 = 1;

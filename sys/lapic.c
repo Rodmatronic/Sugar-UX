@@ -96,7 +96,7 @@ lapicinit(void)
   // Enable interrupts on the APIC (but not on the processor).
   lapicw(TPR, 0);
 
-  cprintf("lapnic: initialized\n");
+  kprintf("lapnic: initialized\n");
 
 }
 

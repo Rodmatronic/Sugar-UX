@@ -36,6 +36,7 @@ uartinit(void)
   if(inb(COM1+5) == 0xFF)
     return;
   uart = 1;
+  kprintf("uartinit: serial port on %d\n", COM1);
 
   // Acknowledge pre-existing interrupt conditions;
   // enable interrupts.
@@ -44,7 +45,7 @@ uartinit(void)
   ioapicenable(IRQ_COM1, 0);
 
   // Announce that we're here.
-  for(p="xv6...\n"; *p; p++)
+  for(p="UART init!\n"; *p; p++)
     uartputc(*p);
 }
 

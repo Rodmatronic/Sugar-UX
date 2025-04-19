@@ -38,7 +38,7 @@ swap_page_from_pte(pte_t *pte)
 
   uint physicalAddress=PTE_ADDR(*pte);          //PTE_ADDR returns address in pte
   if(physicalAddress==0)
-    cprintf("physicalAddress address is zero\n");
+  kprintf("physicalAddress address is zero\n");
   uint diskPage=balloc_page(ROOTDEV);
 
 //  char *vaSwapPage=kalloc();                 //virtual address of physical page which needs to be swapped to disk
@@ -68,7 +68,7 @@ swap_page_from_pte(pte_t *pte)
   */
 
   kfree(P2V(physicalAddress));
-  cprintf("\nReturning from swap page from pte\n");
+  kprintf("\nReturning from swap page from pte\n");
 
 }
 
@@ -79,17 +79,17 @@ swap_page(pde_t *pgdir)
 {
   pte_t* pte=select_a_victim(pgdir);         //returns *pte
   if(pte==0){                                     //If this is true, victim is not found in 1st attempt. Inside this function
-    cprintf("No victim found in 1st attempt. Clearing access bits.");
+    kprintf("No victim found in 1st attempt. Clearing access bits.");
     clearaccessbit(pgdir);                        //Accessbits are cleared,
 
-    cprintf("Finding victim again, after clearing access bits of 10%% pages.");
+    kprintf("Finding victim again, after clearing access bits of 10%% pages.");
     pte=select_a_victim(pgdir);                   //then victim is selected again. Victim is found this time.
 
-    if(pte!=0) cprintf("victim found");
-    else cprintf("Not found even in second attempt." );
+    if(pte!=0) kprintf("victim found");
+    else kprintf("Not found even in second attempt." );
   }
   else{                                           //This else is true, then victim is found in first attempt.
-    cprintf("Victim found in 1st attempt.");
+    kprintf("Victim found in 1st attempt.");
   }
 
   swap_page_from_pte(pte);  //swap victim page to disk
@@ -128,7 +128,7 @@ map_address(pde_t *pgdir, uint addr)
 		//************xv7 swapping yha krni hai**************
     swap_page(pgdir);
     mem=kalloc();             //now a physical page has been swapped to disk and free, so this time we will get physical page for sure.
-    cprintf("kalloc success\n");
+    kprintf("kalloc success\n");
     // panic("allocuvm out of memory xv7 in mem==0/n");
 		// deallocuvmXV7(pgdir,cursz+PGSIZE, cursz);
 	}

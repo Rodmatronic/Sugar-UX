@@ -15,9 +15,12 @@
 #include "proc.h"
 #include "x86.h"
 
-static void consputc(int);
+static void consputc(int, int colour);
 static int echo = 1;
 static int panicked = 0;
+
+#define kcolour 0x8E00
+#define ucolour 0x0700
 
 static struct {
   struct spinlock lock;
@@ -53,13 +56,13 @@ printint(int xx, int base, int sign)
     buf[i++] = '-';
 
   while(--i >= 0)
-    consputc(buf[i]);
+    consputc(buf[i], kcolour);
 }
 //PAGEBREAK: 50
 
 // Print to the console. only understands %d, %x, %p, %s.
 void
-cprintf(char *fmt, ...)
+kprintf(char *fmt, ...)
 {
   int i, c, locking;
   uint *argp;
@@ -75,7 +78,7 @@ cprintf(char *fmt, ...)
   argp = (uint*)(void*)(&fmt + 1);
   for(i = 0; (c = fmt[i] & 0xff) != 0; i++){
     if(c != '%'){
-      consputc(c);
+      consputc(c, kcolour);
       continue;
     }
     c = fmt[++i] & 0xff;
@@ -93,15 +96,15 @@ cprintf(char *fmt, ...)
       if((s = (char*)*argp++) == 0)
         s = "(null)";
       for(; *s; s++)
-        consputc(*s);
+        consputc(*s, kcolour);
       break;
     case '%':
-      consputc('%');
+      consputc('%', kcolour);
       break;
     default:
       // Print unknown % sequence to draw attention.
-      consputc('%');
-      consputc(c);
+      consputc('%', kcolour);
+      consputc(c, kcolour);
       break;
     }
   }
@@ -115,15 +118,15 @@ panic(char *s)
 {
   cli();
   cons.locking = 0;
-  // use lapiccpunum so that we can call panic from mycpu()
-  cprintf("panic: ", lapicid());
-  cprintf(s);
+  kprintf("panic: %s\n", s);
   int ticks = sys_uptime();
   int total_seconds = ticks / 100;  // Convert ticks to seconds
   int minutes = total_seconds / 60;
   int seconds = total_seconds % 60;
-  cprintf("\nuptime: %dm%ds\n", minutes, seconds);
-  cprintf("System Halted. Please contact your System Administrator with the above info.");
+  kprintf("uptime:  %dm%ds\n", minutes, seconds);
+  struct proc *curproc = myproc();
+  kprintf("process: %s\nstate:   0x%x\n", curproc->name, curproc->state);
+  kprintf("System Halted. Please contact your System Administrator with the above info.");
 
   panicked = 1; // freeze other CPU
   for(;;);
@@ -165,11 +168,11 @@ cgaputc(int colour, int c)
   outb(CRTPORT+1, pos>>8);
   outb(CRTPORT, 15);
   outb(CRTPORT+1, pos);
-  crt[pos] = ' ' | 0x0700;
+  crt[pos] = ' ' | ucolour;
 }
 
 void
-consputc(int c)
+consputc(int c, int colour)
 {
   if(panicked){
     cli();
@@ -181,7 +184,7 @@ consputc(int c)
     uartputc('\b'); uartputc(' '); uartputc('\b');
   } else
     uartputc(c);
-  cgaputc(0x0700, c); //0700 is grey on white
+  cgaputc(colour, c); // Pass the colour parameter to cgaputc
 }
 
 #define INPUT_BUF 128
@@ -210,14 +213,14 @@ consoleintr(int (*getc)(void))
       while(input.e != input.w &&
             input.buf[(input.e-1) % INPUT_BUF] != '\n'){
         input.e--;
-        consputc(BACKSPACE);
+        consputc(BACKSPACE, ucolour);
       }
       break;
     case C('H'): case '\x7f':  // Backspace
       if(input.e != input.w){
         input.e--;
         if (echo) {
-          consputc(BACKSPACE);
+          consputc(BACKSPACE, ucolour);
         }
       }
       break;
@@ -228,7 +231,7 @@ default:
     input.buf[input.e++ % INPUT_BUF] = c;
     // Only echo if enabled
     if (echo) {
-      consputc(c);
+      consputc(c, ucolour);
     }
     if(c == '\n' || c == C('D') || input.e == input.r+INPUT_BUF){
       input.w = input.e;
@@ -291,7 +294,7 @@ consolewrite(struct inode *ip, char *buf, int n)
   iunlock(ip);
   acquire(&cons.lock);
   for(i = 0; i < n; i++)
-    consputc(buf[i] & 0xff);
+    consputc(buf[i] & 0xff, ucolour);
   release(&cons.lock);
   ilock(ip);
 
