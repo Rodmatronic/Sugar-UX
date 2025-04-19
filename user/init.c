@@ -55,7 +55,8 @@ main(void)
   mknod("/dev/null", 2, 0);
   mknod("/dev/kmem", 3, 0);
   mknod("/dev/zero", 4, 0);
-
+  mknod("/dev/random", 5, 0);
+  
   mkdir("/root");
   mkdir("/etc");
 

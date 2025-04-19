@@ -21,16 +21,22 @@ int nullwrite(struct inode *ip, char *buf, int n) { return n; }
 int nullread(struct inode *ip, char *buf, int n) { return 0; }
 
 // Zero device (returns zeros on read, discards writes)
-int zeroread(struct inode *ip, char *dst, int n) {
+int
+zeroread(struct inode *ip, char *dst, int n)
+{
   memset(dst, 0, n);
   return n;
 }
 
-int zerowrite(struct inode *ip, char *src, int n) {
+int
+zerowrite(struct inode *ip, char *src, int n)
+{
   return n; // Discard writes
 }
 
-int kmemread(struct inode *ip, char *dst, int n) {
+int
+kmemread(struct inode *ip, char *dst, int n)
+{
   uint addr = ip->off; // Use offset as kernel address
   // Validate address range (KERNBASE to PHYSTOP)
   if (addr < KERNBASE || addr + n > KERNBASE + PHYSTOP || addr + n < addr) 
@@ -40,7 +46,9 @@ int kmemread(struct inode *ip, char *dst, int n) {
   return n;
 }
 
-int kmemwrite(struct inode *ip, char *src, int n) {
+int
+kmemwrite(struct inode *ip, char *src, int n)
+{
   uint addr = ip->off;
   if (addr < KERNBASE || addr + n > KERNBASE + PHYSTOP || addr + n < addr)
     return -1;
@@ -49,20 +57,79 @@ int kmemwrite(struct inode *ip, char *src, int n) {
   return n;
 }
 
+uint32_t xorshift32(uint32_t *state) {
+  uint32_t x = *state;
+  x ^= x << 13;
+  x ^= x >> 17;
+  x ^= x << 5;
+  *state = x;
+  return x;
+}
+
+static uint32_t rng_state;
+
+int rndread(struct inode *ip, char *dst, int n) {
+  uint32_t lo, hi;
+
+  // Generate entropy using rdtsc and mix into PRNG state
+  asm volatile ("rdtsc" : "=a"(lo), "=d"(hi));
+  uint32_t entropy = lo ^ hi;
+  rng_state ^= entropy; // Mix entropy into existing state
+
+  // Generate new values for the buffer
+  uint32_t *buf32 = (uint32_t*)dst;
+  int num_words = n / sizeof(uint32_t);
+  int remainder = n % sizeof(uint32_t);
+
+  for (int i = 0; i < num_words; i++) {
+      buf32[i] = xorshift32(&rng_state);
+  }
+
+  // Handle leftover bytes (if n is not a multiple of 4)
+  if (remainder > 0) {
+      uint32_t val = xorshift32(&rng_state);
+      char *tail = (char*)(buf32 + num_words);
+      for (int i = 0; i < remainder; i++) {
+          tail[i] = (val >> (i * 8)) & 0xFF;
+      }
+  }
+
+  return n;
+}
+
+int
+rndwrite(struct inode *ip, char *src, int n)
+{
+  return n; // Discard writes
+}
+
 // Devnodes devices
-void nullinit(void) {
+void
+nullinit(void)
+{
   devsw[NULLDEV].read = nullread;
   devsw[NULLDEV].write = nullwrite;
 }
 
-void zeroinit(void) {
+void
+zeroinit(void)
+{
   devsw[ZERO].read = zeroread;
   devsw[ZERO].write = zerowrite;
 }
 
-void kminit(void) {
+void
+kminit(void)
+{
   devsw[KMEM].read = kmemread;
   devsw[KMEM].write = kmemwrite;
+}
+
+void
+rndinit(void)
+{
+  devsw[RANDOM].read = rndread;
+  devsw[RANDOM].write = rndwrite;
 }
 
 void

@@ -45,4 +45,5 @@ extern struct devsw devsw[];
 #define NULLDEV 2
 #define KMEM    3   // Kernel memory device
 #define ZERO    4
+#define RANDOM  5
 #endif

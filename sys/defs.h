@@ -34,8 +34,10 @@ int             fileread(struct file*, char*, int n);
 int             filestat(struct file*, struct stat*);
 int             filewrite(struct file*, char*, int n);
 void            nullinit(void);
-void		zeroinit(void);
-void		kminit(void);
+void		    zeroinit(void);
+void		    kminit(void);
+void		    rndinit(void);
+
 // fs.c
 void            readsb(int dev, struct superblock *sb);
 int             dirlink(struct inode*, char*, uint);

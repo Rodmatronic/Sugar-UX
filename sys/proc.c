@@ -130,6 +130,7 @@ userinit(void)
   nullinit();
   kminit();
   zeroinit();
+  rndinit();
 
   //p = allocproc();
 

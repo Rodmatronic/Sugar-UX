@@ -25,6 +25,7 @@ int
 main(int argc, char *argv[])
 {
   int fd, i;
+  struct stat st;
 
   if(argc <= 1){
     cat(0);
@@ -36,6 +37,19 @@ main(int argc, char *argv[])
       printf("cat: cannot open %s\n", argv[i]);
       exit();
     }
+
+    if(fstat(fd, &st) < 0){
+      printf("cat: cannot stat %s\n", argv[i]);
+      close(fd);
+      exit();
+    }
+
+    if(st.type == T_DIR){
+      printf("cat: %s is a directory\n", argv[i]);
+      close(fd);
+      exit();
+    }
+
     cat(fd);
     close(fd);
   }
