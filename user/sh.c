@@ -76,32 +76,47 @@ runcmd(struct cmd *cmd)
   default:
     panic("runcmd");
 
-case EXEC:
-  ecmd = (struct execcmd*)cmd;
-  if(ecmd->argv[0] == 0)
-    exit();
 
-  char path[128];
-  char *prefix = "/bin/";
-  int i = 0;
+    case EXEC:
+    ecmd = (struct execcmd*)cmd;
+    if(ecmd->argv[0] == 0)
+      exit();
 
-  // Copy "/bin/" to path
-  while (prefix[i] != '\0') {
-    path[i] = prefix[i];
-    i++;
-  }
+    // Check for built-in commands first
+    if(strcmp(ecmd->argv[0], "cd") == 0) {
+      if(ecmd->argv[1] == 0) {
+        printf("cd: missing argument\n");
+      } else {
+        if(chdir(ecmd->argv[1]) < 0) {
+          printf("cd: cannot cd to %s\n", ecmd->argv[1]);
+        }
+      }
+      break; // Built-in handled; exit the case
+    }
 
-  // Append ecmd->argv[0] to path
-  int j = 0;
-  while (ecmd->argv[0][j] != '\0' && i < sizeof(path) - 1) {
-    path[i++] = ecmd->argv[0][j++];
-  }
-  path[i] = '\0'; // Null-terminate
+    // Not a built-in: try /bin/<command>
+    char path[128];
+    char *prefix = "/bin/";
+    int i = 0;
 
-  exec(path, ecmd->argv);
+    // Copy "/bin/" to path
+    while (prefix[i] != '\0' && i < sizeof(path)-1) {
+      path[i] = prefix[i];
+      i++;
+    }
 
-  printf("%s: not found\n", ecmd->argv[0]);
-  break;
+    // Append command name to path
+    int j = 0;
+    while (ecmd->argv[0][j] != '\0' && i < sizeof(path)-1) {
+      path[i++] = ecmd->argv[0][j++];
+    }
+    path[i] = '\0';
+
+    exec(path, ecmd->argv);
+
+    // If exec returns, it failed
+    printf("%s: not found\n", ecmd->argv[0]);
+    break;
 
 
   case REDIR: {

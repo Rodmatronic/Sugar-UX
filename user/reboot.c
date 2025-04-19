@@ -6,4 +6,5 @@ int
 main(int argc, char *argv[])
 {
   printf("System REBOOT\n");
+  return 1;
 }
