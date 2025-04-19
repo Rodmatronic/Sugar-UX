@@ -44,7 +44,7 @@ int sys_uname(void) {
   // Copy strings to user space
   safestrcpy(u->sysname, "Sugar/Unix", sizeof(u->sysname));
   safestrcpy(u->nodename, "localhost", sizeof(u->nodename)); // TODO: Make this use hostname.
-  safestrcpy(u->release, "0.12-RELEASE", sizeof(u->release));
+  safestrcpy(u->release, "0.13-RELEASE", sizeof(u->release));
   safestrcpy(u->version, "Sugar/Unix (Codename ALFA)", sizeof(u->version));
   safestrcpy(u->machine, "i386", sizeof(u->machine));
 
