@@ -107,7 +107,7 @@ void ls(char *path) {
 
         int terminal_width = 80;
         int col_width = max_len + 2;
-        int cols = terminal_width / col_width -2;
+        int cols = terminal_width / col_width -1;
 
         if (cols == 0)
             cols = 1;

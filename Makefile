@@ -175,6 +175,7 @@ UPROGS = \
 	$(OUT_DIR)/_pwd \
 	$(OUT_DIR)/_reboot \
 	$(OUT_DIR)/_rm \
+	$(OUT_DIR)/_rmdir \
 	$(OUT_DIR)/_sh \
 	$(OUT_DIR)/_su \
 	$(OUT_DIR)/_uname \
