@@ -67,7 +67,7 @@ runcmd(struct cmd *cmd)
   struct execcmd *ecmd;
   struct listcmd *lcmd;
   struct pipecmd *pcmd;
-  struct redircmd *rcmd;
+  //struct redircmd *rcmd;
 
   if(cmd == 0)
     exit();
@@ -210,7 +210,7 @@ main(void)
       buf[strlen(buf)-1] = 0;  // chop \n
       if(chdir(buf+3) < 0)
         printf("cd: cannot cd to %s\n", buf+3);
-        continue;
+      continue;
     } if(buf[0] == 'e' && buf[1] == 'x' && buf[2] == 'i' && buf[3] == 't'){
       	exit();
     }

@@ -137,7 +137,7 @@ userinit(void)
   initproc = p;
   if((p->pgdir = setupkvm()) == 0)
     panic("userinit: out of memory?");
-    inituvm(p->pgdir, _binary_initcode_start, (int)(_binary_initcode_end - _binary_initcode_start));
+  inituvm(p->pgdir, _binary_initcode_start, (int)(_binary_initcode_end - _binary_initcode_start));
   p->sz = PGSIZE;
   memset(p->tf, 0, sizeof(*p->tf));
   p->tf->cs = (SEG_UCODE << 3) | DPL_USER;
@@ -534,7 +534,7 @@ procdump(void)
       state = states[p->state];
     else
       state = "???";
-      kprintf("%d %s %s", p->pid, state, p->name);
+    kprintf("%d %s %s", p->pid, state, p->name);
     if(p->state == SLEEPING){
       getcallerpcs((uint*)p->context->ebp+2, pc);
       for(i=0; i<10 && pc[i] != 0; i++)

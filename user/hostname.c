@@ -3,27 +3,27 @@
 #include "../sys/user.h"
 
 int
-main (int argc, char **argv)
+main(int argc, char **argv)
 {
   struct utsname name;
   if (argc <= 1) {
-    gethostname(&name);
-    if (name.nodename == NULL) {
-      fprintf(2, "cannot determine hostname");
+    if (gethostname(&name) < 0) {
+      fprintf(2, "cannot determine hostname\n");
+      return 1;
     }
     printf("%s\n", name.nodename);
-    return 1;
+    return 0;
   } else {
-    if(getuid())
-    {
+    if(getuid()) {
       printf("You must be root to set the host name\n");
-      return -1;
+      return 1;
     }
-    /* Set hostname to operand.  */
-    char const *name = argv[1];
-    if (sethostname (name, strlen (name)) != 0)
-      fprintf(2, "cannot set name to %s");
+    /* Set hostname to operand */
+    char *name = argv[1];
+    if (sethostname(name, strlen(name)) != 0) {
+      fprintf(2, "cannot set name to %s\n", name);
+      return 1;
     }
-
-  return 1;
+  }
+  return 0;
 }

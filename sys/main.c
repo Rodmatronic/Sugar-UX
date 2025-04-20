@@ -77,7 +77,7 @@ pde_t entrypgdir[];  // For entry.S
 static void
 startothers(void)
 {
-  extern char _binary_initcode_start[], _binary_initcode_end[];
+  //extern char _binary_initcode_start[], _binary_initcode_end[];
 //  extern uchar _binary_entryother_start[], _binary_entryother_size[];
   uchar *code;
   struct cpu *c;
