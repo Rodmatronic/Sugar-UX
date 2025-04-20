@@ -153,6 +153,21 @@ cgaputc(int colour, int c)
     pos += 80 - pos%80;
   else if(c == BACKSPACE){
     if(pos > 0) --pos;
+  } else if(c == 0x09){
+    // Tab: 8 spaces.
+    pos += 8 - (pos%8);
+  } else if(c >= ' ' && c < 0x7F){
+    // Normal character.
+    crt[pos++] = c | colour;
+  } else if(c == 0x7F){
+    // Delete
+    crt[pos++] = ' ' | colour;
+  } else if(c == '\r'){
+    // Carriage return
+    pos -= pos % 80;
+  } else if(c == '\b'){
+    // Backspace
+    if(pos > 0) --pos;
   } else if(!IS_ASCII_CHAR(c)) {
     // Only print ASCII
     crt[pos++] = (c&0xff) | colour;

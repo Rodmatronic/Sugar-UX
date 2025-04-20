@@ -55,5 +55,6 @@ int     getuid(void);
 int     setuid(int);
 int     gethostname(struct utsname *);
 int     sethostname(const char*, int);
+int     clear(void);
 
 #endif

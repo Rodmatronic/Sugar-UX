@@ -9,6 +9,18 @@
 
 // Default hostname
 static char hostname[MAXHOSTNAMELEN] = "sugarux";
+void sys_setcursor(void);
+
+int
+sys_clear(void)
+{
+  ushort *crt = (ushort*)P2V(0xb8000);  // CGA memory
+  int i;
+  for(i = 0; i < 80*25; i++)
+    crt[i] = ' ' | 0x0700;
+  sys_setcursor();
+  return 0;
+}
 
 int sys_gethostname(void) {
   struct utsname *u;

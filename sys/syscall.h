@@ -30,3 +30,4 @@
 #define SYS_setuid      29
 #define SYS_gethostname 30
 #define SYS_sethostname 31
+#define SYS_clear       32
