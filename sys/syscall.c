@@ -112,6 +112,8 @@ extern int sys_uname(void);
 extern int sys_echo(void);
 extern int sys_getuid(void);
 extern int sys_setuid(void);
+extern int sys_gethostname(void);
+extern int sys_sethostname(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]        sys_fork,
@@ -143,6 +145,8 @@ static int (*syscalls[])(void) = {
 [SYS_echo]        sys_echo,
 [SYS_getuid]      sys_getuid,
 [SYS_setuid]      sys_setuid,
+[SYS_gethostname] sys_gethostname,
+[SYS_sethostname] sys_sethostname,
 };
 
 void

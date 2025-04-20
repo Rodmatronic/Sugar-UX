@@ -7,6 +7,44 @@
 #include "mmu.h"
 #include "proc.h"
 
+// Default hostname
+static char hostname[MAXHOSTNAMELEN] = "sugarux";
+
+int sys_gethostname(void) {
+  struct utsname *u;
+  char *addr;
+
+  // Get the user-space pointer argument
+  if(argptr(0, &addr, sizeof(*u)) < 0)
+    return -1;
+  u = (struct utsname *)addr;
+
+  // Copy hostname to user space
+  safestrcpy(u->nodename, hostname, sizeof(u->nodename));
+  return 0;
+}
+
+int sys_sethostname(void) {
+  char *name;
+  int len;
+
+  // Get arguments from user space
+  if(argstr(0, &name) < 0 || argint(1, &len) < 0)
+    return -1;
+
+  // Validate length
+  if(len <= 0 || len >= MAXHOSTNAMELEN)
+    return -1;
+
+  // Only root can change hostname
+  if(myproc()->uid != 0)
+    return -1;
+
+  // Copy new hostname
+  safestrcpy(hostname, name, MAXHOSTNAMELEN);
+  return 0;
+}
+
 int
 sys_getuid(void) {
   return myproc()->uid;
@@ -43,7 +81,7 @@ int sys_uname(void) {
 
   // Copy strings to user space
   safestrcpy(u->sysname, "Sugar/Unix", sizeof(u->sysname));
-  safestrcpy(u->nodename, "localhost", sizeof(u->nodename)); // TODO: Make this use hostname.
+  safestrcpy(u->nodename, hostname, sizeof(u->nodename));
   safestrcpy(u->release, "0.13-RELEASE", sizeof(u->release));
   safestrcpy(u->version, "Sugar/Unix (Codename ALFA)", sizeof(u->version));
   safestrcpy(u->machine, "i386", sizeof(u->machine));

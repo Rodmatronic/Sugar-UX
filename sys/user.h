@@ -53,5 +53,7 @@ void	strncpy(char *dest, const char *src, int n);
 int	    echo(int enable);
 int     getuid(void);
 int     setuid(int);
+int     gethostname(struct utsname *);
+int     sethostname(const char*, int);
 
 #endif

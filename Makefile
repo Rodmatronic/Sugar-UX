@@ -162,6 +162,7 @@ UPROGS = \
 	$(OUT_DIR)/_date \
 	$(OUT_DIR)/_getuid \
 	$(OUT_DIR)/_grep \
+	$(OUT_DIR)/_hostname \
 	$(OUT_DIR)/_init \
 	$(OUT_DIR)/_kill \
 	$(OUT_DIR)/_ln \
@@ -170,6 +171,7 @@ UPROGS = \
 	$(OUT_DIR)/_mkdir \
 	$(OUT_DIR)/_more \
 	$(OUT_DIR)/_mv \
+	$(OUT_DIR)/_nologin \
 	$(OUT_DIR)/_pwd \
 	$(OUT_DIR)/_reboot \
 	$(OUT_DIR)/_rm \
