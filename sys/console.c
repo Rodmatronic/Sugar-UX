@@ -136,6 +136,7 @@ panic(char *s)
 #define BACKSPACE 0x100
 #define CRTPORT 0x3d4
 static ushort *crt = (ushort*)P2V(0xb8000);  // CGA memory
+#define IS_ASCII_CHAR(c) ((c >= 0x00 && c <= 0x1F) || (c >= 0xE2 && c <= 0xE5))
 
 static void
 cgaputc(int colour, int c)
@@ -152,8 +153,10 @@ cgaputc(int colour, int c)
     pos += 80 - pos%80;
   else if(c == BACKSPACE){
     if(pos > 0) --pos;
-  } else
+  } else if(!IS_ASCII_CHAR(c)) {
+    // Only print ASCII
     crt[pos++] = (c&0xff) | colour;
+  }
 
   if(pos < 0 || pos > 25*80)
     panic("pos under/overflow");
