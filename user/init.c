@@ -81,6 +81,30 @@ main(void)
   printf("clearing /tmp\n");
   unlink("/tmp"); mkdir("/tmp");
 
+  // hostname?
+  if(open("/etc/hostname", O_RDWR) < 0){
+    char *name = "sugar";
+    printf("init: WARNING: hostname not set.\nUsing sane default: %s\n", name);
+    sethostname(name, strlen(name));
+    setenv("HOSTNAME", name);
+  } else {
+    char name[64];
+    int fd = open("/etc/hostname", O_RDWR);
+    if (fd < 0) {
+      printf("Failed to open /etc/hostname\n");
+      exit();
+    }
+    read(fd, name, sizeof(name));
+    close(fd);
+    sethostname(name, strlen(name));
+    setenv("HOSTNAME", name);
+  }
+  struct utsname u;
+  if (gethostname(&u) < 0) {
+    printf("Failed to get hostname\n");
+    exit();
+  }
+
   /*
    *
    * TODO: Don't let me work on this at 3 in the morning

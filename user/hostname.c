@@ -1,6 +1,7 @@
 #include "../sys/types.h"
 #include "../sys/stat.h"
 #include "../sys/user.h"
+#include "../sys/fcntl.h"
 
 int
 main(int argc, char **argv)
@@ -24,6 +25,11 @@ main(int argc, char **argv)
       fprintf(2, "cannot set name to %s\n", name);
       return 1;
     }
+    int fd = open("/etc/hostname", O_RDWR | O_CREATE);
+    char *hostname = name;
+    setenv("HOSTNAME", name);
+    write(fd, name, strlen(name));
+    close(fd);
   }
   return 0;
 }
