@@ -29,7 +29,7 @@ wc(int fd, char *name)
     printf("wc: read error\n");
     exit();
   }
-  printf("%d %d %d %s\n", l, w, c, name);
+  printf("\t%d %d %d %s\n", l, w, c, name);
 }
 
 int

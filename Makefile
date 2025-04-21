@@ -157,6 +157,7 @@ ULIB = $(OUT_DIR)/ulib.o $(OUT_DIR)/usys.o $(OUT_DIR)/printf.o $(OUT_DIR)/umallo
 UPROGS = \
 	$(OUT_DIR)/_basename \
 	$(OUT_DIR)/_cat \
+	$(OUT_DIR)/_cp \
 	$(OUT_DIR)/_clear \
 	$(OUT_DIR)/_echo \
 	$(OUT_DIR)/_date \

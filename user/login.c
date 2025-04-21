@@ -43,6 +43,10 @@ int main() {
     gets(user, sizeof(user));  // Get username
     user[strlen(user)-1] = 0;  // Remove newline
 
+    if (strlen(user) == 0) {
+        exit();
+    }
+
     printf("Password: ");
     echo(0);
     gets(pass, sizeof(pass));  // Get Password
