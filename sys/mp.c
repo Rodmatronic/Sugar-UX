@@ -136,4 +136,6 @@ mpinit(void)
     outb(0x22, 0x70);   // Select IMCR
     outb(0x23, inb(0x23) | 1);  // Mask external interrupts.
   }
+  kprintf("mpconfig: lapicid %x ioapicid %x\n", conf->lapicaddr, ioapicid);
+  kprintf("mpconfig: ncpu %d\n", ncpu);
 }

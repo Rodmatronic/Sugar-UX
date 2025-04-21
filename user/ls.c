@@ -72,6 +72,11 @@ void ls(char *path) {
             memmove(entry_name, de.name, DIRSIZ);
             entry_name[DIRSIZ] = '\0';
 
+            // Skip "." and ".."
+            if((de.name[0] == '.' && de.name[1] == 0) ||
+                (de.name[0] == '.' && de.name[1] == '.' && de.name[2] == 0))
+                continue;
+
             int len = strlen(entry_name);
             if (len == 0)
                 continue;

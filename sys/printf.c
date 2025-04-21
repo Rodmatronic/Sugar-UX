@@ -135,7 +135,7 @@ printf(char *fmt, ...)
   flush(1);
 }
 
-// Print to the given fd. Only understands %d, %x, %p, %s.
+// Print to the given fd
 void
 fprintf(int fd, char *fmt, ...)
 {
@@ -143,50 +143,63 @@ fprintf(int fd, char *fmt, ...)
   int c, i, state;
   uint *ap;
 
+  state = 0;
+  ap = (uint*)(void*)&fmt + 1;
   int width = 0;
   char pad_char = ' ';
 
-  state = 0;
-  ap = (uint*)(void*)&fmt + 1;
   for(i = 0; fmt[i]; i++){
     c = fmt[i] & 0xff;
     if(state == 0){
-      if (c == '\f') { // Detect formfeed character
-        setcursor();
-      } else
       if(c == '%'){
         state = '%';
+        width = 0;
+        pad_char = ' ';
       } else {
         putc(fd, c);
       }
     } else if(state == '%'){
-      if(c == 'd'){
-        printint(1, *ap, 10, 1, width, pad_char);
+      if(c == '0'){
+        pad_char = '0';
+      } else if(c >= '1' && c <= '9'){
+        width = width * 10 + (c - '0');
+        continue; // keep parsing digits
+      } else if(c == 'd'){
+        printint(fd, *ap, 10, 1, width, pad_char);
         ap++;
+        state = 0;
       } else if(c == 'x' || c == 'p'){
-        printint(1, *ap, 16, 0, width, pad_char);
+        printint(fd, *ap, 16, 0, width, pad_char);
         ap++;
+        state = 0;
       } else if(c == 's'){
         s = (char*)*ap;
         ap++;
         if(s == 0)
           s = "(null)";
+        int len = 0;
+        for (char *t = s; *t; t++) len++;
+        for (int j = len; j < width; j++)
+          putc(fd, pad_char);
         while(*s != 0){
-          putc(fd, *s);
-          s++;
+          putc(fd, *s++);
         }
+        state = 0;
       } else if(c == 'c'){
-        putc(fd, *ap);
-        ap++;
+        char ch = *ap++;
+        putc(fd, ch);
+        state = 0;
       } else if(c == '%'){
-        putc(fd, c);
+        putc(fd, '%');
+        state = 0;
       } else {
-        // Unknown % sequence.  Print it to draw attention.
         putc(fd, '%');
         putc(fd, c);
+        state = 0;
       }
-      state = 0;
     }
   }
-}
 
+  // Flush the buffer at the end
+  flush(1);
+}

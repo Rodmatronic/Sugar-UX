@@ -144,6 +144,7 @@ kvmalloc(void)
 {
   kpgdir = setupkvm();
   switchkvm();
+  kprintf("kernel page table at 0x%p\n", kpgdir);
 }
 
 // Switch h/w page table register to the kernel-only page table,
