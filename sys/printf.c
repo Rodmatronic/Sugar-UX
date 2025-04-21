@@ -2,6 +2,20 @@
 #include "stat.h"
 #include "user.h"
 
+#define PRINTF_BUF_SIZE 512
+
+static char printf_buf[PRINTF_BUF_SIZE];
+static int printf_buf_index = 0;
+
+static void
+flush(int fd)
+{
+    if(printf_buf_index > 0) {
+        write(fd, printf_buf, printf_buf_index);
+        printf_buf_index = 0;
+    }
+}
+
 void
 strncpy(char *dest, const char *src, int n)
 {
@@ -15,13 +29,16 @@ strncpy(char *dest, const char *src, int n)
 static void
 putc(int fd, char c)
 {
-  write(fd, &c, 1);
+  if(printf_buf_index >= PRINTF_BUF_SIZE) {
+      flush(fd);
+  }
+  printf_buf[printf_buf_index++] = c;
 }
 
 static void
 printint(int fd, int xx, int base, int sgn, int width, char pad_char)
 {
-  static char digits[] = "0123456789ABCDEF";
+  static char digits[] = "0123456789abcdef";
   char buf[16];
   int i, neg;
   uint x;
@@ -65,9 +82,7 @@ printf(char *fmt, ...)
   for(i = 0; fmt[i]; i++){
     c = fmt[i] & 0xff;
     if(state == 0){
-      if (c == '\f') {
-        setcursor();
-      } else if(c == '%'){
+      if(c == '%'){
         state = '%';
         width = 0;
         pad_char = ' ';
@@ -115,6 +130,9 @@ printf(char *fmt, ...)
       }
     }
   }
+
+  // Flush the buffer at the end
+  flush(1);
 }
 
 // Print to the given fd. Only understands %d, %x, %p, %s.

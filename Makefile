@@ -163,6 +163,7 @@ UPROGS = \
 	$(OUT_DIR)/_date \
 	$(OUT_DIR)/_getuid \
 	$(OUT_DIR)/_grep \
+	$(OUT_DIR)/_hexdump \
 	$(OUT_DIR)/_hostname \
 	$(OUT_DIR)/_init \
 	$(OUT_DIR)/_kill \
