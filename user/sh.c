@@ -93,25 +93,27 @@ runcmd(struct cmd *cmd)
       break; // Built-in handled; exit the case
     }
 
+    // Use PATH environment variable
+    char path_env[512];
+    getenv("PATH", path_env);
+
     char path[128];
-    char *prefix = "/bin/";
-    int i = 0;
-
-    // Copy "/bin/" to path
-    while (prefix[i] != '\0') {
-      path[i] = prefix[i];
-      i++;
+    char *pathp = path_env;
+    while (*pathp) {
+      // Find next ':' or end
+      char *q = pathp;
+      while (*q && *q != ':') q++;
+      int len = q - pathp;
+      if (len > 0 && len < sizeof(path) - 2 - strlen(ecmd->argv[0])) {
+        memmove(path, pathp, len);
+        path[len] = '/';
+        strcpy(path + len + 1, ecmd->argv[0]);
+        path[len + 1 + strlen(ecmd->argv[0])] = 0;
+        exec(path, ecmd->argv);
+      }
+      if (*q == 0) break;
+      pathp = q + 1;
     }
-
-    // Append ecmd->argv[0] to path
-    int j = 0;
-    while (ecmd->argv[0][j] != '\0' && i < sizeof(path) - 1) {
-      path[i++] = ecmd->argv[0][j++];
-    }
-    path[i] = '\0'; // Null-terminate
-
-    exec(path, ecmd->argv);
-
     printf("%s: not found\n", ecmd->argv[0]);
     break;
 
