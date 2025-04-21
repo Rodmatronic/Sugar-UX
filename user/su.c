@@ -61,6 +61,7 @@ int main() {
   }
 
   if (match) {
+    setenv("HOME", fields[5]);
     int uid = atoi(fields[2]);
     if (setuid(uid) < 0) {
       //fprintf(2, "su: permission denied\n");

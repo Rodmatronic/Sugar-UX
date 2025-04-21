@@ -56,5 +56,8 @@ int     setuid(int);
 int     gethostname(struct utsname *);
 int     sethostname(const char*, int);
 int     clear(void);
+int     setenv(const char *name, const char *value);
+int     getenv(const char *name, char *value);
+int     listenv(char *buf, int buflen);
 
 #endif

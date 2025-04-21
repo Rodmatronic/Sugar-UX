@@ -76,45 +76,44 @@ runcmd(struct cmd *cmd)
   default:
     panic("runcmd");
 
-case EXEC:
-  ecmd = (struct execcmd*)cmd;
-  if(ecmd->argv[0] == 0)
-    exit();
+  case EXEC:
+    ecmd = (struct execcmd*)cmd;
+    if(ecmd->argv[0] == 0)
+      exit();
 
-  // Check for built-in commands first
-  if(strcmp(ecmd->argv[0], "cd") == 0) {
-    if(ecmd->argv[1] == 0) {
-      printf("cd: missing argument\n");
-    } else {
-      if(chdir(ecmd->argv[1]) < 0) {
-        printf("cd: cannot cd to %s\n", ecmd->argv[1]);
+    // Check for built-in commands first
+    if(strcmp(ecmd->argv[0], "cd") == 0) {
+      if(ecmd->argv[1] == 0) {
+        printf("cd: missing argument\n");
+      } else {
+        if(chdir(ecmd->argv[1]) < 0) {
+          printf("cd: cannot cd to %s\n", ecmd->argv[1]);
+        }
       }
+      break; // Built-in handled; exit the case
     }
-    break; // Built-in handled; exit the case
-  }
 
-  char path[128];
-  char *prefix = "/bin/";
-  int i = 0;
+    char path[128];
+    char *prefix = "/bin/";
+    int i = 0;
 
-  // Copy "/bin/" to path
-  while (prefix[i] != '\0') {
-    path[i] = prefix[i];
-    i++;
-  }
+    // Copy "/bin/" to path
+    while (prefix[i] != '\0') {
+      path[i] = prefix[i];
+      i++;
+    }
 
-  // Append ecmd->argv[0] to path
-  int j = 0;
-  while (ecmd->argv[0][j] != '\0' && i < sizeof(path) - 1) {
-    path[i++] = ecmd->argv[0][j++];
-  }
-  path[i] = '\0'; // Null-terminate
+    // Append ecmd->argv[0] to path
+    int j = 0;
+    while (ecmd->argv[0][j] != '\0' && i < sizeof(path) - 1) {
+      path[i++] = ecmd->argv[0][j++];
+    }
+    path[i] = '\0'; // Null-terminate
 
-  exec(path, ecmd->argv);
+    exec(path, ecmd->argv);
 
-  printf("%s: not found\n", ecmd->argv[0]);
-  break;
-
+    printf("%s: not found\n", ecmd->argv[0]);
+    break;
 
   case REDIR: {
     struct redircmd *rcmd = (struct redircmd*)cmd;
@@ -210,6 +209,7 @@ main(void)
       buf[strlen(buf)-1] = 0;  // chop \n
       if(chdir(buf+3) < 0)
         printf("cd: cannot cd to %s\n", buf+3);
+      setenv("PWD", buf+3);
       continue;
     } if(buf[0] == 'e' && buf[1] == 'x' && buf[2] == 'i' && buf[3] == 't'){
       	exit();

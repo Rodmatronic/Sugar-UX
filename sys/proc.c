@@ -80,6 +80,13 @@ allocproc(void)
     if(p->state == UNUSED)
       goto found;
 
+  // Initialize environment variables
+  p->env_count = 0;
+  for (int i = 0; i < MAX_ENV_VARS; i++) {
+    p->env[i].name[0] = '\0';
+    p->env[i].value[0] = '\0';
+  }
+
   release(&ptable.lock);
   return 0;
 
@@ -194,6 +201,13 @@ fork(void)
   }
 
   np->uid = curproc->uid; // Inherit UID
+
+  // Copy environment variables from parent to child
+  np->env_count = curproc->env_count;
+  for(int i = 0; i < curproc->env_count; i++) {
+    safestrcpy(np->env[i].name, curproc->env[i].name, MAX_ENV_NAME);
+    safestrcpy(np->env[i].value, curproc->env[i].value, MAX_ENV_VALUE);
+  }
 
   // Copy process state from proc.
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){

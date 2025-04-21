@@ -12,6 +12,83 @@ static char hostname[MAXHOSTNAMELEN] = "sugarux";
 void sys_setcursor(void);
 
 int
+sys_setenv(void)
+{
+  char *name, *value;
+  if (argstr(0, &name) < 0 || argstr(1, &value) < 0)
+    return -1;
+
+  struct proc *p = myproc();
+  for (int i = 0; i < p->env_count; i++) {
+    if (strncmp(p->env[i].name, name, MAX_ENV_NAME) == 0) {
+      safestrcpy(p->env[i].value, value, MAX_ENV_VALUE);
+      return 0;
+    }
+  }
+
+  if (p->env_count >= MAX_ENV_VARS)
+    return -1;
+
+  safestrcpy(p->env[p->env_count].name, name, MAX_ENV_NAME);
+  safestrcpy(p->env[p->env_count].value, value, MAX_ENV_VALUE);
+  p->env_count++;
+  return 0;
+}
+
+int
+sys_getenv(void)
+{
+  char *name, *value;
+  if (argstr(0, &name) < 0 || argptr(1, &value, MAX_ENV_VALUE) < 0)
+    return -1;
+
+  struct proc *p = myproc();
+  for (int i = 0; i < p->env_count; i++) {
+    if (strncmp(p->env[i].name, name, MAX_ENV_NAME) == 0) {
+      safestrcpy(value, p->env[i].value, MAX_ENV_VALUE);
+      return 0;
+    }
+  }
+  return -1;
+}
+
+static int
+strnlen_safe(const char *s, int max)
+{
+  int i = 0;
+  while(i < max && s[i])
+    i++;
+  return i;
+}
+
+int
+sys_listenv(void)
+{
+  char *ubuf;
+  int buflen;
+  if (argptr(0, &ubuf, 1) < 0 || argint(1, &buflen) < 0)
+    return -1;
+
+  struct proc *p = myproc();
+  int pos = 0;
+  for (int i = 0; i < p->env_count; i++) {
+    int n = safestrnlen(p->env[i].name, MAX_ENV_NAME);
+    if (pos + n + 1 >= buflen) break;
+    safestrcpy(ubuf + pos, p->env[i].name, buflen - pos);
+    pos += n;
+    ubuf[pos++] = '=';
+    n = safestrnlen(p->env[i].value, MAX_ENV_VALUE);
+    if (pos + n + 1 >= buflen) break;
+    safestrcpy(ubuf + pos, p->env[i].value, buflen - pos);
+    pos += n;
+    ubuf[pos++] = '\n';
+  }
+  if (pos < buflen)
+    ubuf[pos] = 0;
+  return 0;
+}
+
+int
 sys_clear(void)
 {
   ushort *crt = (ushort*)P2V(0xb8000);  // CGA memory
@@ -94,7 +171,7 @@ int sys_uname(void) {
   // Copy strings to user space
   safestrcpy(u->sysname, "Sugar/Unix", sizeof(u->sysname));
   safestrcpy(u->nodename, hostname, sizeof(u->nodename));
-  safestrcpy(u->release, "0.13-RELEASE", sizeof(u->release));
+  safestrcpy(u->release, "0.14-RELEASE", sizeof(u->release));
   safestrcpy(u->version, "Sugar/Unix (Codename ALFA)", sizeof(u->version));
   safestrcpy(u->machine, "i386", sizeof(u->machine));
 

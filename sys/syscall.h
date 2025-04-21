@@ -31,3 +31,6 @@
 #define SYS_gethostname 30
 #define SYS_sethostname 31
 #define SYS_clear       32
+#define SYS_setenv      33
+#define SYS_getenv      34
+#define SYS_listenv     35

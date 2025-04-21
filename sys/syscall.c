@@ -115,6 +115,9 @@ extern int sys_setuid(void);
 extern int sys_gethostname(void);
 extern int sys_sethostname(void);
 extern int sys_clear(void);
+extern int sys_setenv(void);
+extern int sys_getenv(void);
+extern int sys_listenv(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]        sys_fork,
@@ -149,6 +152,9 @@ static int (*syscalls[])(void) = {
 [SYS_gethostname] sys_gethostname,
 [SYS_sethostname] sys_sethostname,
 [SYS_clear]       sys_clear,
+[SYS_setenv]      sys_setenv,
+[SYS_getenv]      sys_getenv,
+[SYS_listenv]     sys_listenv,
 };
 
 void

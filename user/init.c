@@ -44,6 +44,18 @@ main(void)
     exit();
   }
 
+  // No home until LOGIN sets it up
+  setenv("HOME", "/");
+  // Default PATH
+  setenv("PATH", "/bin:/usr/bin");
+  // PWD initially
+  setenv("PWD", "/");
+  // vt100 is a safe bet
+  setenv("TERM", "vt100");
+  setenv("USER", "root");
+  setenv("LOGNAME", "root");
+  setenv("SHELL", "/bin/sh");
+
   // boot-time directories
   mkdir("/dev");
   mkdir("/var");

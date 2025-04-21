@@ -78,6 +78,15 @@ strncpy(char *s, const char *t, int n)
   return os;
 }
 
+int
+safestrnlen(const char *s, int max)
+{
+  int i = 0;
+  while(i < max && s[i])
+    i++;
+  return i;
+}
+
 // Like strncpy but guaranteed to NUL-terminate.
 char*
 safestrcpy(char *s, const char *t, int n)
