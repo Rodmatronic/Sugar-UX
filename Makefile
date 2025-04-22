@@ -164,6 +164,7 @@ UPROGS = \
 	$(OUT_DIR)/_date \
 	$(OUT_DIR)/_getuid \
 	$(OUT_DIR)/_grep \
+	$(OUT_DIR)/_halt \
 	$(OUT_DIR)/_hexdump \
 	$(OUT_DIR)/_hostname \
 	$(OUT_DIR)/_init \
@@ -196,15 +197,27 @@ $(OUT_DIR)/vectors.S: $(SYS_DIR)/vectors.pl
 	@mkdir -p $(@D)
 	perl $< > $@
 
+$(OUT_DIR)/%: etc/%
+	@mkdir -p $(OUT_DIR)/
+	cp $< $@
+
 $(OUT_DIR)/mkfs: $(SYS_DIR)/mkfs.c
 	@mkdir -p $(@D)
 	gcc -Wall -o $@ $<
 
-$(OUT_DIR)/fs.img: $(OUT_DIR)/mkfs README $(UPROGS)
+ETC_FILES = \
+	$(OUT_DIR)/groups \
+	$(OUT_DIR)/issue \
+	$(OUT_DIR)/motd \
+	$(OUT_DIR)/passwd \
+	$(OUT_DIR)/profile \
+	$(OUT_DIR)/rc
+
+$(OUT_DIR)/fs.img: $(OUT_DIR)/mkfs README $(UPROGS) $(ETC_FILES)
 	@mkdir -p $(@D)
 	cp README $(OUT_DIR)/README
 	cd $(OUT_DIR) && \
-	./mkfs fs.img README $(notdir $(UPROGS))
+	./mkfs fs.img README $(notdir $(UPROGS)) $(notdir $(ETC_FILES))
 
 tags: $(OBJS) $(SYS_DIR)/entryother.S $(OUT_DIR)/_init
 	etags $(SYS_DIR)/*.S $(SYS_DIR)/*.c $(USER_DIR)/*.c

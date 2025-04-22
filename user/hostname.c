@@ -16,7 +16,7 @@ main(int argc, char **argv)
     return 0;
   } else {
     if(getuid()) {
-      printf("You must be root to set the host name\n");
+      printf("hostname: Operation not permitted\n");
       return 1;
     }
     /* Set hostname to operand */

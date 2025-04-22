@@ -1,0 +1,8 @@
+
+Welcome to Sugar/Unix!
+
+Sugar/Unix version: 'uname -a'
+Reporting problems: 'https:/www.github.com/rodmatronic/Sugar-UX/issues'
+
+To change this login announcement, edit '/etc/motd'. Thank you for using
+Sugar/Unix

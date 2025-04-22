@@ -64,6 +64,22 @@ xint(uint x)
   return y;
 }
 
+// Add "." and ".." entries to a directory inode
+void
+add_dot_entries(uint dir_ino, uint parent_ino)
+{
+  struct dirent de;
+  bzero(&de, sizeof(de));
+  de.inum = xshort(dir_ino);
+  strcpy(de.name, ".");
+  iappend(dir_ino, &de, sizeof(de));
+
+  bzero(&de, sizeof(de));
+  de.inum = xshort(parent_ino);
+  strcpy(de.name, "..");
+  iappend(dir_ino, &de, sizeof(de));
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -123,15 +139,7 @@ main(int argc, char *argv[])
   root_ino.uid = 0;           // Set UID to root
   winode(rootino, &root_ino); // Write back to disk
 
-  bzero(&de, sizeof(de));
-  de.inum = xshort(rootino);
-  strcpy(de.name, ".");
-  iappend(rootino, &de, sizeof(de));
-
-  bzero(&de, sizeof(de));
-  de.inum = xshort(rootino);
-  strcpy(de.name, "..");
-  iappend(rootino, &de, sizeof(de));
+  add_dot_entries(rootino, rootino);
 
     uint binino = ialloc(T_DIR);
   assert(binino != 0);
@@ -142,15 +150,18 @@ main(int argc, char *argv[])
   strcpy(de.name, "bin");
   iappend(rootino, &de, sizeof(de));
 
-  bzero(&de, sizeof(de));
-  de.inum = xshort(binino);
-  strcpy(de.name, ".");
-  iappend(binino, &de, sizeof(de));
+  add_dot_entries(binino, rootino);
 
+  // Add 'etc' entry to root directory
+  uint etcino = ialloc(T_DIR);
+  assert(etcino != 0);
+  
   bzero(&de, sizeof(de));
-  de.inum = xshort(rootino);
-  strcpy(de.name, "..");
-  iappend(binino, &de, sizeof(de));
+  de.inum = xshort(etcino);
+  strcpy(de.name, "etc");
+  iappend(rootino, &de, sizeof(de));
+
+  add_dot_entries(etcino, rootino);
 
   // Add 'usr' entry to root directory
   uint usrino = ialloc(T_DIR);
@@ -161,15 +172,7 @@ main(int argc, char *argv[])
   strcpy(de.name, "usr");
   iappend(rootino, &de, sizeof(de));
 
-  bzero(&de, sizeof(de));
-  de.inum = xshort(usrino);
-  strcpy(de.name, ".");
-  iappend(usrino, &de, sizeof(de));
-
-  bzero(&de, sizeof(de));
-  de.inum = xshort(rootino);
-  strcpy(de.name, "..");
-  iappend(usrino, &de, sizeof(de));
+  add_dot_entries(usrino, rootino);
 
   // Add 'home' entry to root directory
   uint homeino = ialloc(T_DIR);
@@ -180,15 +183,18 @@ main(int argc, char *argv[])
   strcpy(de.name, "home");
   iappend(rootino, &de, sizeof(de));
 
-  bzero(&de, sizeof(de));
-  de.inum = xshort(homeino);
-  strcpy(de.name, ".");
-  iappend(homeino, &de, sizeof(de));
+  add_dot_entries(homeino, rootino);
 
+  // Add 'sbin' entry to root directory
+  uint sbinino = ialloc(T_DIR);
+  assert(sbinino != 0);
+  
   bzero(&de, sizeof(de));
-  de.inum = xshort(rootino);
-  strcpy(de.name, "..");
-  iappend(homeino, &de, sizeof(de));
+  de.inum = xshort(sbinino);
+  strcpy(de.name, "sbin");
+  iappend(rootino, &de, sizeof(de));
+
+  add_dot_entries(sbinino, rootino);
 
   // Add 'sugar' entry to home directory
   uint sugarino = ialloc(T_DIR);
@@ -199,15 +205,7 @@ main(int argc, char *argv[])
   strcpy(de.name, "sugar");
   iappend(homeino, &de, sizeof(de));
 
-  bzero(&de, sizeof(de));
-  de.inum = xshort(sugarino);
-  strcpy(de.name, ".");
-  iappend(sugarino, &de, sizeof(de));
-
-  bzero(&de, sizeof(de));
-  de.inum = xshort(homeino);
-  strcpy(de.name, "..");
-  iappend(sugarino, &de, sizeof(de));
+  add_dot_entries(sugarino, homeino);
   
   rinode(sugarino, &sugar_ino); // Read dinode from disk
   sugar_ino.uid = 0;           // Set UID to sugar
@@ -233,11 +231,29 @@ for (i = 2; i < argc; i++) {
     de.inum = xshort(inum);
     strncpy(de.name, name, DIRSIZ);
 
-    // Special case: "init" goes to root, others to /bin
+    // Special cases
     if (strcmp(name, "init") == 0) {
         iappend(rootino, &de, sizeof(de));
     } if (strcmp(name, "README") == 0) {
         iappend(rootino, &de, sizeof(de));
+    } else if (strcmp(name, "profile") == 0) {
+      iappend(etcino, &de, sizeof(de));
+    } else if (strcmp(name, "passwd") == 0) {
+    iappend(etcino, &de, sizeof(de));
+    } else if (strcmp(name, "motd") == 0) {
+      iappend(etcino, &de, sizeof(de));
+    } else if (strcmp(name, "issue") == 0) {
+      iappend(etcino, &de, sizeof(de));
+    } else if (strcmp(name, "groups") == 0) {
+      iappend(etcino, &de, sizeof(de));
+    } else if (strcmp(name, "rc") == 0) {
+      iappend(etcino, &de, sizeof(de));
+    } else if (strcmp(name, "nologin") == 0) {
+      iappend(sbinino, &de, sizeof(de));
+    } else if (strcmp(name, "halt") == 0) {
+      iappend(sbinino, &de, sizeof(de));
+    } else if (strcmp(name, "reboot") == 0) {
+      iappend(sbinino, &de, sizeof(de));
     } else {
         iappend(binino, &de, sizeof(de));
     }

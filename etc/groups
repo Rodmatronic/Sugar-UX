@@ -1,0 +1,8 @@
+wheel:*:0:root
+daemon:*:1:daemon
+sys:*:3:root
+tty:*:4:root
+mail:*:14:
+staff:*:20:root
+user:*:100:
+nogroup:*:32766:

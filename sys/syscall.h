@@ -34,3 +34,5 @@
 #define SYS_setenv      33
 #define SYS_getenv      34
 #define SYS_listenv     35
+#define SYS_halt        36
+#define SYS_reboot      37

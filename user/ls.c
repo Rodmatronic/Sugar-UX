@@ -106,7 +106,7 @@ void ls(char *path) {
             max_len = 1;
 
         int terminal_width = 80;
-        int col_width = max_len + 2;
+        int col_width = max_len + 1;
         int cols = terminal_width / col_width -1;
 
         if (cols == 0)
@@ -116,10 +116,10 @@ void ls(char *path) {
 
         for (i = 0; i < rows; i++) {
             for (j = 0; j < cols; j++) {
-                int index = i * cols + j;
+                int index = j * rows + i;
                 if (index >= num_entries)
-                    break;
-
+                    continue;
+        
                 printf("%s", names[index]);
                 int len = strlen(names[index]);
                 int padding = col_width - len;

@@ -37,6 +37,7 @@ char*	strcpy(char*, char*);
 void*	memmove(void*, void*, int);
 char*	strchr(const char*, char c);
 int	    strcmp(const char*, const char*);
+int     strncmp(const char *p, const char *q, int size);
 void	printf(char*, ...);
 void	fprintf(int fd, char*, ...);
 char*	gets(char*, int max);
@@ -59,5 +60,7 @@ int     clear(void);
 int     setenv(const char *name, const char *value);
 int     getenv(const char *name, char *value);
 int     listenv(char *buf, int buflen);
+int     halt(void);
+int     reboot(void);
 
 #endif

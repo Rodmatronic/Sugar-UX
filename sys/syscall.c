@@ -118,6 +118,8 @@ extern int sys_clear(void);
 extern int sys_setenv(void);
 extern int sys_getenv(void);
 extern int sys_listenv(void);
+extern int sys_halt(void);
+extern int sys_reboot(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]        sys_fork,
@@ -155,6 +157,8 @@ static int (*syscalls[])(void) = {
 [SYS_setenv]      sys_setenv,
 [SYS_getenv]      sys_getenv,
 [SYS_listenv]     sys_listenv,
+[SYS_halt]        sys_halt,
+[SYS_reboot]      sys_reboot,
 };
 
 void

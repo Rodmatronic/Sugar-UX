@@ -15,7 +15,7 @@
 #define LIST  4
 #define BACK  5
 
-#define MAXARGS 10
+#define MAXARGS 128
 
 struct cmd {
   int type;
@@ -57,6 +57,8 @@ struct backcmd {
 int fork1(void);  // Fork but panics on failure.
 void panic(char*);
 struct cmd *parsecmd(char*);
+int readline(int fd, char *buf, int max);
+void process_line(char *line);
 
 // Execute cmd.  Never returns.
 void
@@ -191,7 +193,7 @@ getcmd(char *buf, int nbuf)
 }
 
 int
-main(void)
+main(int argc, char *argv[])
 {
   static char buf[100];
   int fd;
@@ -204,7 +206,51 @@ main(void)
     }
   }
 
-  // Read and run input commands.
+  // Check if a script file is provided
+  if(argc >= 2){
+    int script_fd = open(argv[1], O_RDONLY);
+    if(script_fd < 0){
+      printf("shell: cannot open %s\n", argv[1]);
+      exit();
+    }
+
+    char line[100];
+    while(readline(script_fd, line, sizeof(line)) > 0){
+      process_line(line);
+      if(strlen(line) == 0)
+        continue;
+
+      // Handle 'exit' command
+      if(strcmp(line, "exit") == 0){
+        exit();
+      }
+      // Handle 'cd' command
+      else if(strncmp(line, "cd ", 3) == 0){
+        char *arg = line + 3;
+        // Skip leading whitespace after 'cd'
+        while(*arg == ' ' || *arg == '\t') arg++;
+        if(*arg == '\0'){
+          printf("cd: missing argument\n");
+          continue;
+        }
+        if(chdir(arg) < 0){
+          printf("cd: cannot cd to %s\n", arg);
+        }
+        setenv("PWD", arg);
+      }
+      // Execute other commands
+      else {
+        struct cmd *cmd = parsecmd(line);
+        if(fork1() == 0)
+          runcmd(cmd);
+        wait();
+      }
+    }
+    close(script_fd);
+    exit();
+  }
+
+  // interactive loop
   while(getcmd(buf, sizeof(buf)) >= 0){
     if(buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' '){
       // Chdir must be called by the parent, not the child.
@@ -213,8 +259,9 @@ main(void)
         printf("cd: cannot cd to %s\n", buf+3);
       setenv("PWD", buf+3);
       continue;
-    } if(buf[0] == 'e' && buf[1] == 'x' && buf[2] == 'i' && buf[3] == 't'){
-      	exit();
+    }
+    if(buf[0] == 'e' && buf[1] == 'x' && buf[2] == 'i' && buf[3] == 't'){
+      exit();
     }
     if(fork1() == 0)
       runcmd(parsecmd(buf));
@@ -222,6 +269,43 @@ main(void)
   }
   exit();
 }
+
+void
+process_line(char *line)
+{
+  // Remove comment part
+  char *p = strchr(line, '#');
+  if(p != 0)
+    *p = '\0';
+
+  // Trim leading whitespace
+  char *start = line;
+  while(*start == ' ' || *start == '\t')
+    start++;
+  memmove(line, start, strlen(start) + 1);
+
+  // Trim trailing whitespace
+  char *end = line + strlen(line) - 1;
+  while(end >= line && (*end == ' ' || *end == '\t' || *end == '\n' || *end == '\r'))
+    *end-- = '\0';
+}
+
+int
+readline(int fd, char *buf, int max)
+{
+  int i = 0;
+  char c;
+  while(i < max - 1){
+    if(read(fd, &c, 1) <= 0)
+      break;
+    if(c == '\n')
+      break;
+    buf[i++] = c;
+  }
+  buf[i] = '\0';
+  return i;
+}
+
 
 void
 panic(char *s)

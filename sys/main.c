@@ -11,6 +11,7 @@ static void mpmain(void)  __attribute__((noreturn));
 extern pde_t *kpgdir;
 extern char end[]; // first address after kernel loaded from ELF file
 void enablecur(int cursor_start, int cursor_end);
+int clear();
 
 char * bootbanner = "Copyright (c) 2006-2018 Frans Kaashoek, Robert Morris, Russ Cox,\n    Massachusetts Institute of Technology\n";
 
@@ -20,6 +21,7 @@ char * bootbanner = "Copyright (c) 2006-2018 Frans Kaashoek, Robert Morris, Russ
 int
 main(void)
 {
+  clear();
   kprintf("%s", bootbanner);
   enablecur(0, 16);
   kinit1(end, P2V(4*1024*1024)); // phys page allocator
@@ -49,6 +51,21 @@ enablecur(int cursor_start, int cursor_end)
 	outb(0x3D5, (inb(0x3D5) & 0xC0) | cursor_start);
 	outb(0x3D4, 0x0B);
 	outb(0x3D5, (inb(0x3D5) & 0xE0) | cursor_end);
+}
+
+int
+clear(void)
+{
+  ushort *crt = (ushort*)P2V(0xb8000);  // CGA memory
+  int i;
+  for(i = 0; i < 80*25; i++)
+    crt[i] = ' ' | 0x0700;
+  // Set cursor to (0,0) via VGA ports
+  outb(0x3D4, 0x0F);
+  outb(0x3D5, 0x00);
+  outb(0x3D4, 0x0E);
+  outb(0x3D5, 0x00);
+  return 1;
 }
 
 // Other CPUs jump here from entryother.S.

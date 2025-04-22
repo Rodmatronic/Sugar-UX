@@ -12,6 +12,39 @@ static char hostname[MAXHOSTNAMELEN] = "sugarux";
 void sys_setcursor(void);
 
 int
+sys_reboot(void)
+{
+  int uid;
+  if (myproc()->uid != 0) { // Normally the program running this would check, this is a failsafe
+    kprintf("Only root can reset the system!\n");
+    return -1;
+  }
+
+  kprintf("rebooting...\n");
+
+  outb(0x64, 0xFE); // Send reset command
+
+  for (;;) asm volatile("hlt");
+  return 0;
+}
+
+int
+sys_halt(void)
+{
+  int uid;
+  if (myproc()->uid != 0) { // Normally the program running this would check, this is a failsafe
+    kprintf("Only root can halt the system!\n");
+    return -1;
+  }
+
+  asm volatile("cli");  // Disable interrupts
+  kprintf("\nThe operating system has halted.\n\n");
+  for(;;) asm volatile("hlt");
+  return 0;
+}
+
+
+int
 sys_setenv(void)
 {
   char *name, *value;
@@ -171,7 +204,7 @@ int sys_uname(void) {
   // Copy strings to user space
   safestrcpy(u->sysname, "Sugar/Unix", sizeof(u->sysname));
   safestrcpy(u->nodename, hostname, sizeof(u->nodename));
-  safestrcpy(u->release, "0.14-RELEASE", sizeof(u->release));
+  safestrcpy(u->release, "0.14.1-RELEASE", sizeof(u->release));
   safestrcpy(u->version, "Sugar/Unix (Codename ALFA)", sizeof(u->version));
   safestrcpy(u->machine, "i386", sizeof(u->machine));
 

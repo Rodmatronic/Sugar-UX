@@ -47,7 +47,7 @@ main(void)
   // No home until LOGIN sets it up
   setenv("HOME", "/");
   // Default PATH
-  setenv("PATH", "/bin:/usr/bin");
+  setenv("PATH", "/bin:/usr/bin:/sbin");
   // PWD initially
   setenv("PWD", "/");
   // vt100 is a safe bet
@@ -74,14 +74,13 @@ main(void)
   link("/dev/random", "/dev/urandom");
 
   mkdir("/root");
-  mkdir("/etc");
 
   dup(0);  // stdout
   dup(0);  // stderr
   printf("clearing /tmp\n");
   unlink("/tmp"); mkdir("/tmp");
 
-  // hostname?
+  // Do we have hostname?
   if(open("/etc/hostname", O_RDWR) < 0){
     char *name = "sugar";
     printf("init: WARNING: hostname not set.\nUsing sane default: %s\n", name);
@@ -104,40 +103,6 @@ main(void)
     printf("Failed to get hostname\n");
     exit();
   }
-
-  /*
-   *
-   * TODO: Don't let me work on this at 3 in the morning
-   *
-   * real TODO: Just make mkfs handle this...
-   *
-   */
-
-
-  int fd;
-  fd = open("/etc/issue", O_WRONLY | O_CREATE);
-  if (fd < 0) {
-    printf("Failed to create file\n");
-  }
-  char *issue = "Sugar/Unix 0.11 (Codename ALFA)\n";
-  write(fd, issue, 32);
-
-  fd = open("/etc/passwd", O_WRONLY | O_CREATE);
-  if (fd < 0) {
-    printf("Failed to create file\n");
-  }
-  char *passwd = "root:root:0:0:Super User:/root:/bin/sh\nsugar::1000:1000:Default User:/home/sugar:/bin/sh\n";
-
-  write(fd, passwd, 89);
-
-  fd = open("/etc/motd", O_WRONLY | O_CREATE);
-  if (fd < 0) {
-    printf("Failed to create file\n");
-  }
-  char *entry = "\nWelcome to Sugar/Unix!\n\nSugar/Unix version: 'uname -a'\nReporting problems: 'https:/www.github.com/rodmatronic/Sugar-UX/issues'\n\nTo change this login announcement, edit '/etc/motd'\n";
-  write(fd, entry, 181);
-
-  close(fd);
 
   struct rtcdate r;
 
