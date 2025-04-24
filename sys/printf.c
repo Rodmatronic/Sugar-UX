@@ -67,6 +67,84 @@ printint(int fd, int xx, int base, int sgn, int width, char pad_char)
     putc(fd, buf[i]);
 }
 
+// Minimal snprintf: supports %s, %d, %x, %c, and %%
+int
+snprintf(char *buf, int size, const char *fmt, ...)
+{
+    char *s;
+    int c, n = 0, state = 0;
+    uint *ap = (uint*)(void*)&fmt + 1;
+    char numbuf[16];
+
+    for (int fi = 0; fmt[fi] && n < size - 1; fi++) {
+        c = fmt[fi] & 0xff;
+        if (state == 0) {
+            if (c == '%') {
+                state = '%';
+            } else {
+                buf[n++] = c;
+            }
+        } else if (state == '%') {
+            if (c == 'd') {
+                int val = *ap++;
+                int neg = 0;
+                uint uval;
+                if (val < 0) {
+                    neg = 1;
+                    uval = -val;
+                } else {
+                    uval = val;
+                }
+                int j = 0;
+                do {
+                    numbuf[j++] = '0' + (uval % 10);
+                    uval /= 10;
+                } while (uval && j < sizeof(numbuf));
+                if (neg && j < sizeof(numbuf))
+                    numbuf[j++] = '-';
+                while (j-- && n < size - 1)
+                    buf[n++] = numbuf[j];
+                state = 0;
+            } else if (c == 'x') {
+                uint val = *ap++;
+                int j = 0;
+                do {
+                    int digit = val % 16;
+                    numbuf[j++] = (digit < 10) ? ('0' + digit) : ('a' + digit - 10);
+                    val /= 16;
+                } while (val && j < sizeof(numbuf));
+                while (j-- && n < size - 1)
+                    buf[n++] = numbuf[j];
+                state = 0;
+            } else if (c == 's') {
+                s = (char*)*ap++;
+                if (!s) s = "(null)";
+                while (*s && n < size - 1)
+                    buf[n++] = *s++;
+                state = 0;
+            } else if (c == 'c') {
+                char ch = *ap++;
+                if (n < size - 1)
+                    buf[n++] = ch;
+                state = 0;
+            } else if (c == '%') {
+                if (n < size - 1)
+                    buf[n++] = '%';
+                state = 0;
+            } else {
+                // Unknown format, just print it
+                if (n < size - 1)
+                    buf[n++] = '%';
+                if (n < size - 1)
+                    buf[n++] = c;
+                state = 0;
+            }
+        }
+    }
+    buf[n] = 0;
+    return n;
+}
+
 void
 printf(char *fmt, ...)
 {

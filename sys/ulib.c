@@ -5,6 +5,92 @@
 #include "x86.h"
 
 char*
+strdup(const char *s)
+{
+    int len = strlen((char*)s);
+    char *copy = malloc(len + 1);
+    if (!copy)
+        return 0;
+    strcpy(copy, (char*)s);
+    return copy;
+}
+
+int
+strspn(const char *s, const char *accept)
+{
+    int i = 0;
+    while (s[i]) {
+        const char *a = accept;
+        int found = 0;
+        while (*a) {
+            if (s[i] == *a) {
+                found = 1;
+                break;
+            }
+            a++;
+        }
+        if (!found)
+            break;
+        i++;
+    }
+    return i;
+}
+
+int
+strcspn(const char *s, const char *reject)
+{
+    int i = 0;
+    while (s[i]) {
+        const char *r = reject;
+        while (*r) {
+            if (s[i] == *r)
+                return i;
+            r++;
+        }
+        i++;
+    }
+    return i;
+}
+
+char*
+strtok(char *str, const char *delim)
+{
+    static char *last;
+    if (str)
+        last = str;
+    if (!last)
+        return 0;
+
+    // Skip leading delimiters
+    char *s = last;
+    while (*s && strchr(delim, *s))
+        s++;
+    if (!*s) {
+        last = 0;
+        return 0;
+    }
+
+    char *tok = s;
+    // Find end of token
+    while (*s && !strchr(delim, *s))
+        s++;
+    if (*s) {
+        *s = 0;
+        last = s + 1;
+    } else {
+        last = 0;
+    }
+    return tok;
+}
+
+void
+strcat(char *dest, const char *src)
+{
+  while (*dest) dest++;
+  while ((*dest++ = *src++));
+}
+
+char*
 strcpy(char *s, char *t)
 {
   char *os;

@@ -65,11 +65,6 @@ usage:
 	exit();
 }
 
-void strcat(char *dest, const char *src) {
-    while (*dest) dest++;
-    while ((*dest++ = *src++));
-}
-
 int
 move(char *source, char *target)
 {

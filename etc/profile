@@ -1,2 +1,2 @@
-echo This is a profile test.
-echo Profile profiles the profiling profiler
+export PATH=/bin:/sbin:/usr/bin
+export TERM=vt100

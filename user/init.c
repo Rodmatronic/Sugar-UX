@@ -4,36 +4,8 @@
 #include "../sys/fcntl.h"
 #include "../sys/date.h"
 char *argv[] = { "login", 0 };
-
+char *dateargv[] = { "date", "", 0 }; 
 #define stderr 2
-
-// Use Zeller's Congruence to get weekday name
-char* get_weekday(int y, int m, int d) {
-  static char* days[] = {
-    "Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"
-  };
-
-  if (m < 3) {
-    m += 12;
-    y -= 1;
-  }
-
-  int h = (d + 2*m + 3*(m+1)/5 + y + y/4 - y/100 + y/400) % 7;
-  return days[h];
-}
-
-// Convert month number to name
-char* monthname(int m) {
-  static char* months[] = {
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-  };
-
-  if (m < 1 || m > 12)
-    return "???";
-
-  return months[m - 1];
-}
 
 int
 main(void)
@@ -45,16 +17,16 @@ main(void)
   }
 
   // No home until LOGIN sets it up
-  setenv("HOME", "/");
+  setenv("HOME", "/", 1);
   // Default PATH
-  setenv("PATH", "/bin:/usr/bin:/sbin");
+  setenv("PATH", "/bin:/usr/bin:/sbin", 1);
   // PWD initially
-  setenv("PWD", "/");
+  setenv("PWD", "/", 1);
   // vt100 is a safe bet
-  setenv("TERM", "vt100");
-  setenv("USER", "root");
-  setenv("LOGNAME", "root");
-  setenv("SHELL", "/bin/sh");
+  setenv("TERM", "vt100", 1);
+  setenv("USER", "root", 1);
+  setenv("LOGNAME", "root", 1);
+  setenv("SHELL", "/bin/sh", 1);
 
   // boot-time directories
   mkdir("/dev");
@@ -85,7 +57,7 @@ main(void)
     char *name = "sugar";
     printf("init: WARNING: hostname not set.\nUsing sane default: %s\n", name);
     sethostname(name, strlen(name));
-    setenv("HOSTNAME", name);
+    setenv("HOSTNAME", name, 1);
   } else {
     char name[64];
     int fd = open("/etc/hostname", O_RDWR);
@@ -96,7 +68,7 @@ main(void)
     read(fd, name, sizeof(name));
     close(fd);
     sethostname(name, strlen(name));
-    setenv("HOSTNAME", name);
+    setenv("HOSTNAME", name, 1);
   }
   struct utsname u;
   if (gethostname(&u) < 0) {
@@ -104,18 +76,16 @@ main(void)
     exit();
   }
 
-  struct rtcdate r;
-
-  if (gettime(&r) == 0) {
-    printf("%02s %02s %02d %02d:%02d:%02d UTC %02d\n",
-           get_weekday(r.year, r.month, r.day),
-           monthname(r.month),
-           r.day,
-           r.hour,
-           r.minute,
-           r.second,
-           r.year);
+  int datepid = fork();
+  if (datepid == 0) {
+    exec("/bin/date", dateargv);
+    exit();
+  } else if (datepid > 0) {
+    wait();
+  } else {
+    printf("init: fork failed for date\n");
   }
+
   printf("\nSugar/Unix login\n(Default user is 'sugar' with blank pass. Root pass is 'root')\n");
 
   for(;;){

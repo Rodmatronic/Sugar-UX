@@ -86,11 +86,11 @@ int main() {
     }
     close(fd);
     if (match) {
-        setenv("USER", fields[0]);
-        setenv("LOGNAME", fields[0]);
-        setenv("HOME", fields[5]);
-        setenv("SHELL", fields[6]);
-        setenv("PWD", fields[5]);
+        setenv("USER", fields[0], 1);
+        setenv("LOGNAME", fields[0], 1);
+        setenv("HOME", fields[5], 1);
+        setenv("SHELL", fields[6], 1);
+        setenv("PWD", fields[5], 1);
         int uid = atoi(fields[2]);
 	      // Print the date
 	      struct rtcdate r;
@@ -124,7 +124,7 @@ int main() {
         }
         if (chdir(fields[5])) {
             printf("No home directory, defaulting to '/'\n");
-            setenv("HOME", "/");
+            setenv("HOME", "/", 1);
         }
         // Start shell
         int pid = fork();

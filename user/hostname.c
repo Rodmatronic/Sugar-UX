@@ -26,8 +26,7 @@ main(int argc, char **argv)
       return 1;
     }
     int fd = open("/etc/hostname", O_RDWR | O_CREATE);
-    char *hostname = name;
-    setenv("HOSTNAME", name);
+    setenv("HOSTNAME", name, 1);
     write(fd, name, strlen(name));
     close(fd);
   }

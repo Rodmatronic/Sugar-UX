@@ -1,4 +1,4 @@
-// Shell.
+// The Sugar shell, sush. Based on xv6 shell.
 
 #include "../sys/types.h"
 #include "../sys/user.h"
@@ -224,19 +224,23 @@ main(int argc, char *argv[])
       if(strcmp(line, "exit") == 0){
         exit();
       }
-      // Handle 'cd' command
-      else if(strncmp(line, "cd ", 3) == 0){
-        char *arg = line + 3;
-        // Skip leading whitespace after 'cd'
-        while(*arg == ' ' || *arg == '\t') arg++;
-        if(*arg == '\0'){
+      if(buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' '){
+        // Parse the command to handle quotes
+        struct cmd *cmd = parsecmd(buf);
+        if(cmd->type != EXEC){
+          panic("cd: syntax error");
+        }
+        struct execcmd *ecmd = (struct execcmd*)cmd;
+        if(ecmd->argv[1] == 0){
           printf("cd: missing argument\n");
-          continue;
+        } else {
+          if(chdir(ecmd->argv[1]) < 0){
+            printf("cd: cannot cd to %s\n", ecmd->argv[1]);
+          }
+          // Update PWD environment variable
+          setenv("PWD", ecmd->argv[1], 1);
         }
-        if(chdir(arg) < 0){
-          printf("cd: cannot cd to %s\n", arg);
-        }
-        setenv("PWD", arg);
+        continue;
       }
       // Execute other commands
       else {
@@ -253,13 +257,23 @@ main(int argc, char *argv[])
   // interactive loop
   while(getcmd(buf, sizeof(buf)) >= 0){
     if(buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' '){
-      // Chdir must be called by the parent, not the child.
-      buf[strlen(buf)-1] = 0;  // chop \n
-      if(chdir(buf+3) < 0)
-        printf("cd: cannot cd to %s\n", buf+3);
-      setenv("PWD", buf+3);
-      continue;
-    }
+        // Parse the command to handle quotes
+        struct cmd *cmd = parsecmd(buf);
+        if(cmd->type != EXEC){
+          panic("cd: syntax error");
+        }
+        struct execcmd *ecmd = (struct execcmd*)cmd;
+        if(ecmd->argv[1] == 0){
+          printf("cd: missing argument\n");
+        } else {
+          if(chdir(ecmd->argv[1]) < 0){
+            printf("cd: cannot cd to %s\n", ecmd->argv[1]);
+          }
+          // Update PWD environment variable
+          setenv("PWD", ecmd->argv[1], 1);
+        }
+        continue;
+      }
     if(buf[0] == 'e' && buf[1] == 'x' && buf[2] == 'i' && buf[3] == 't'){
       exit();
     }
@@ -429,15 +443,63 @@ gettoken(char **ps, char *es, char **q, char **eq)
     break;
   default:
     ret = 'a';
-    while(s < es && !strchr(whitespace, *s) && !strchr(symbols, *s))
-      s++;
+    if (*s == '"') {
+        // Quoted string
+        s++; // Skip opening quote
+        char *dest = s;
+        char *src = s;
+        while (src < es) {
+            if (*src == '\\') {
+                // Escape: skip backslash, take next char
+                src++;
+                if (src < es) {
+                    *dest++ = *src++;
+                } else {
+                    break;
+                }
+            } else if (*src == '"') {
+                break;
+            } else {
+                *dest++ = *src++;
+            }
+        }
+        if (q)
+            *q = s;
+        if (eq)
+            *eq = dest;
+        // Move s to after closing quote
+        if (src < es && *src == '"') {
+            src++;
+        }
+        s = src;
+    } else {
+        // Regular token
+        char *src = s;
+        char *dest = s;
+        while (src < es) {
+            if (*src == '\\') {
+                // Escape: skip backslash, take next char
+                src++;
+                if (src < es) {
+                    *dest++ = *src++;
+                } else {
+                    break;
+                }
+            } else if (strchr(whitespace, *src) || strchr(symbols, *src)) {
+                break;
+            } else {
+                *dest++ = *src++;
+            }
+        }
+        if (eq)
+            *eq = dest;
+        s = src;
+    }
+    // Skip trailing whitespace after token
+    while(s < es && strchr(whitespace, *s))
+        s++;
     break;
   }
-  if(eq)
-    *eq = s;
-
-  while(s < es && strchr(whitespace, *s))
-    s++;
   *ps = s;
   return ret;
 }

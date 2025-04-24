@@ -161,6 +161,7 @@ UPROGS = \
 	$(OUT_DIR)/_clear \
 	$(OUT_DIR)/_echo \
 	$(OUT_DIR)/_env \
+	$(OUT_DIR)/_export \
 	$(OUT_DIR)/_date \
 	$(OUT_DIR)/_getuid \
 	$(OUT_DIR)/_grep \
@@ -173,6 +174,7 @@ UPROGS = \
 	$(OUT_DIR)/_login \
 	$(OUT_DIR)/_ls \
 	$(OUT_DIR)/_mkdir \
+	$(OUT_DIR)/_mknod \
 	$(OUT_DIR)/_more \
 	$(OUT_DIR)/_mv \
 	$(OUT_DIR)/_nologin \

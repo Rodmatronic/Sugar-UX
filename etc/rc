@@ -1,1 +1,26 @@
-# Will be implemented soon!
+export PATH=/bin:/sbin:/usr/bin
+
+export HOME=/
+export TERM=vt100
+
+echo setting hostname
+hostname=$(cat /etc/hostname)
+hostname $hostname
+export HOSTNAME=$hostname
+
+echo starting system logger
+/sbin/syslogd &
+
+echo -n standard daemons:
+echo -n ' cron';
+cron
+
+echo -n starting local daemons:
+sh /etc/rc.d
+echo -n .
+
+echo clearing /tmp
+rm -r /tmp
+mkdir /tmp
+
+date

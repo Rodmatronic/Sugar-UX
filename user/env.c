@@ -26,7 +26,7 @@ main(int argc, char *argv[])
             *eq = 0; // Split into two strings
             char *name = argv[1];
             char *value = eq + 1;
-            setenv(name, value);
+            setenv(name, value, 1);
             char buf[1024];
             if (listenv(buf, sizeof(buf)) == 0)
                 printf("%s", buf);

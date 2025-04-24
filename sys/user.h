@@ -46,6 +46,11 @@ void*	memset(void*, int, uint);
 void*	malloc(uint);
 void	free(void*);
 int	    atoi(const char*);
+char*   strtok(char *str, const char *delim);
+int     strcspn(const char *s, const char *reject);
+int     strspn(const char *s, const char *accept);
+int     snprintf(char *buf, int size, const char *fmt, ...);
+char*   strdup(const char *s);
 
 int	    gettime(struct rtcdate*);
 void	setcursor(void);
@@ -57,10 +62,11 @@ int     setuid(int);
 int     gethostname(struct utsname *);
 int     sethostname(const char*, int);
 int     clear(void);
-int     setenv(const char *name, const char *value);
+int     setenv(const char *name, const char *value, int);
 int     getenv(const char *name, char *value);
 int     listenv(char *buf, int buflen);
 int     halt(void);
 int     reboot(void);
+void    strcat(char *dest, const char *src);
 
 #endif
