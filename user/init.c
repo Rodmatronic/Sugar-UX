@@ -6,6 +6,18 @@
 char *argv[] = { "login", 0 };
 char *dateargv[] = { "date", "", 0 }; 
 #define stderr 2
+#define version "1.00"
+
+/*
+ * 0 = Powering off
+ * 1 = Single user
+ * 2 = Multi user
+ * 3 = Multi user with networking
+ * 4 - Not used
+ * 5 = Not used
+ * 6 = Reboot
+  */
+int runlevel = 3;
 
 int
 main(void)
@@ -13,7 +25,7 @@ main(void)
   int pid, wpid;
   if (getpid() != 1) {
     (void)fprintf(stderr, "init: already running\n");
-    exit();
+    exit(0);
   }
 
   // No home until LOGIN sets it up
@@ -37,6 +49,10 @@ main(void)
     mknod("/dev/console", 1, 1);
     open("/dev/console", O_RDWR);
   }
+  dup(0);  // stdout
+  dup(0);  // stderr
+
+  printf("INIT: version %s booting\n", version);
 
   // Make device nodes. NOTE: random and urandom are identical.
   mknod("/dev/null", 2, 0);
@@ -46,9 +62,6 @@ main(void)
   link("/dev/random", "/dev/urandom");
 
   mkdir("/root");
-
-  dup(0);  // stdout
-  dup(0);  // stderr
   printf("clearing /tmp\n");
   unlink("/tmp"); mkdir("/tmp");
 
@@ -63,7 +76,7 @@ main(void)
     int fd = open("/etc/hostname", O_RDWR);
     if (fd < 0) {
       printf("Failed to open /etc/hostname\n");
-      exit();
+      exit(EXIT_FAILURE);
     }
     read(fd, name, sizeof(name));
     close(fd);
@@ -73,13 +86,17 @@ main(void)
   struct utsname u;
   if (gethostname(&u) < 0) {
     printf("Failed to get hostname\n");
-    exit();
+    exit(EXIT_FAILURE);
   }
+
+  // Fully booted
+  runlevel = 3;
+  printf("Entering runlevel: %d\n", runlevel);
 
   int datepid = fork();
   if (datepid == 0) {
     exec("/bin/date", dateargv);
-    exit();
+    exit(EXIT_SUCCESS);
   } else if (datepid > 0) {
     wait();
   } else {

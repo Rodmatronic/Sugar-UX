@@ -4,5 +4,5 @@
 int 
 main() {
   printf("%d\n", getuid());
-  exit();
+  exit(EXIT_SUCCESS);
 }

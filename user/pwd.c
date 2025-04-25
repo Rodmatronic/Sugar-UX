@@ -31,7 +31,7 @@ void prname() {
     if (off < 0) off = 0;
     name[off] = '\n';
     write(1, name, off + 1);
-    exit();
+    exit(EXIT_SUCCESS);
 }
 
 void cat() {

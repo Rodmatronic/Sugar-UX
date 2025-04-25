@@ -12,12 +12,12 @@ cat(int fd)
   while((n = read(fd, buf, sizeof(buf))) > 0) {
     if (write(1, buf, n) != n) {
       printf("cat: write error\n");
-      exit();
+      exit(EXIT_FAILURE);
     }
   }
   if(n < 0){
     printf("cat: read error\n");
-    exit();
+    exit(EXIT_FAILURE);
   }
 }
 
@@ -29,29 +29,29 @@ main(int argc, char *argv[])
 
   if(argc <= 1){
     cat(0);
-    exit();
+    exit(EXIT_SUCCESS);
   }
 
   for(i = 1; i < argc; i++){
     if((fd = open(argv[i], 0)) < 0){
       printf("cat: cannot open %s\n", argv[i]);
-      exit();
+      exit(EXIT_FAILURE);
     }
 
     if(fstat(fd, &st) < 0){
       printf("cat: cannot stat %s\n", argv[i]);
       close(fd);
-      exit();
+      exit(EXIT_FAILURE);
     }
 
     if(st.type == T_DIR){
       printf("cat: %s is a directory\n", argv[i]);
       close(fd);
-      exit();
+      exit(EXIT_FAILURE);
     }
 
     cat(fd);
     close(fd);
   }
-  exit();
+  exit(EXIT_SUCCESS);
 }

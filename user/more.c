@@ -11,17 +11,17 @@ wait_prompt() {
   // Open console device explicitly
   int console_fd = open("/dev/console", O_RDONLY);
   if (console_fd < 0) {
-    exit(); // quit if can't read
+    exit(EXIT_FAILURE); // quit if can't read
   }
 
   // Read directly from the console (blocks until keypress)
   if (read(console_fd, &c, 1) != 1) {
     close(console_fd);
-    exit();
+    exit(EXIT_SUCCESS);
   }
   if (c == 'q') {
     close(console_fd);
-    exit();
+    exit(EXIT_SUCCESS);
   }
   close(console_fd);
 }
@@ -41,7 +41,7 @@ more(int fd) {
       }
     }
   }
-  exit();
+  exit(EXIT_SUCCESS);
 }
 
 int
@@ -51,11 +51,11 @@ main(int argc, char *argv[]) {
   } else {
     int fd = open(argv[1], O_RDONLY);
     if (fd < 0) {
-      write(2, "Cannot open file\n", 17);
-      exit();
+      fprintf(2, "more: cannot open %s: No such file or directory\n", argv[1]);
+      exit(EXIT_FAILURE);
     }
     more(fd);
     close(fd);
   }
-  exit();
+  exit(EXIT_SUCCESS);
 }

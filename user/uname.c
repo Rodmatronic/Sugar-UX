@@ -57,19 +57,19 @@ main(int argc, char *argv[])
           case 'm': option_m = 1; break;
           default:
             fprintf(2, "uname: invalid option '%c'\n", *p);
-            exit();
+            exit(EXIT_FAILURE);
         }
         p++;
       }
     } else {
       fprintf(2, "uname: extra operand '%s'\n", argv[i]);
-      exit();
+      exit(EXIT_FAILURE);
     }
   }
 
   if (uname(&name) < 0) {
     fprintf(2, "uname: system call failed\n");
-    exit();
+    exit(EXIT_FAILURE);
   }
 
   if (print_all) {
@@ -92,5 +92,5 @@ main(int argc, char *argv[])
     }
   }
 
-  exit();
+  exit(EXIT_SUCCESS);
 }

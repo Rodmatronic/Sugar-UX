@@ -64,7 +64,7 @@ main(int argc, char *argv[])
         i = 2;  // Skip "-r" argument
         if (i >= argc) {
             printf("rm: missing operand after '-r'\n");
-            exit();
+            exit(EXIT_FAILURE);
         }
     } else {
         i = 1;
@@ -72,7 +72,7 @@ main(int argc, char *argv[])
 
     if (i >= argc) {
         printf("Usage: rm [-r] files...\n");
-        exit();
+        exit(EXIT_FAILURE);
     }
 
     // Process each file/directory
@@ -98,5 +98,5 @@ main(int argc, char *argv[])
         }
     }
 
-  exit();
+  exit(EXIT_SUCCESS);
 }

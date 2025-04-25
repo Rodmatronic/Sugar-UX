@@ -9,7 +9,7 @@ main(int argc, char **argv)
 
         if (argc < 2) {
                 printf("\n");
-                exit();
+                exit(EXIT_SUCCESS);
         }
         p1 = argv[1];
         p2 = p1;
@@ -28,6 +28,6 @@ main(int argc, char **argv)
 output:
         printf("%s", p2);
         write(1, "\n", 1);
-        exit();
+        exit(EXIT_SUCCESS);
 }
 

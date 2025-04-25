@@ -47,6 +47,6 @@ main(void ) {
            r.second,
            r.year);
   }
-  exit();
+  exit(EXIT_SUCCESS);
 }
 

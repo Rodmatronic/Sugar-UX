@@ -204,7 +204,7 @@ int sys_uname(void) {
   // Copy strings to user space
   safestrcpy(u->sysname, "Sugar/Unix", sizeof(u->sysname));
   safestrcpy(u->nodename, hostname, sizeof(u->nodename));
-  safestrcpy(u->release, "0.14.1-RELEASE", sizeof(u->release));
+  safestrcpy(u->release, "0.14.2-RELEASE", sizeof(u->release));
   safestrcpy(u->version, "Sugar/Unix (Codename ALFA)", sizeof(u->version));
   safestrcpy(u->machine, "i386", sizeof(u->machine));
 
@@ -228,9 +228,9 @@ sys_fork(void)
 }
 
 int
-sys_exit(void)
+sys_exit(int status)
 {
-  exit();
+  exit(status);
   panic("exit: system call returned");
   return 0;  // not reached
 }
@@ -238,7 +238,10 @@ sys_exit(void)
 int
 sys_wait(void)
 {
-  return wait();
+  int *status;
+  if(argptr(0, (void*)&status, sizeof(*status)) < 0)
+    return -1;
+  return wait(status);
 }
 
 int

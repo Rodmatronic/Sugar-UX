@@ -5,10 +5,12 @@ struct stat;
 struct rtcdate;
 
 #include "types.h"
+#define EXIT_SUCCESS 0
+#define EXIT_FAILURE 1
 
 // system calls
 int  fork(void);
-int  exit(void) __attribute__((noreturn));
+int  exit(int __status) __attribute__((noreturn));
 int  wait(void);
 int  pipe(int*);
 int  write(int, void*, int);

@@ -29,7 +29,7 @@ int main() {
   // Check /etc/passwd
   if ((fd = open("/etc/passwd", 0)) < 0) {
     fprintf(2, "su: no passwd file\n");
-    exit();
+    exit(EXIT_FAILURE);
   }
 
   int match = 0;
@@ -74,5 +74,5 @@ int main() {
     fprintf(2, "su: sorry\n");
   }
 
-  exit();
+  exit(EXIT_SUCCESS);
 }

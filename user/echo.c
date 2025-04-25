@@ -5,9 +5,22 @@
 int
 main(int argc, char *argv[])
 {
-  int i;
+  int i = 1;
+  int nflag = 0;
 
-  for(i = 1; i < argc; i++)
-    printf("%s%s", argv[i], i+1 < argc ? " " : "\n");
-  exit();
+  if(argc < 2){
+    printf("\n");
+    exit(EXIT_SUCCESS);
+  }
+
+  if(argc > 1 && strcmp(argv[1], "-n") == 0){
+    nflag = 1;
+    i = 2;
+  }
+
+  for(; i < argc; i++)
+    printf("%s%s", argv[i], i+1 < argc ? " " : (nflag ? "" : "\n"));
+  if(nflag)
+    printf(""); // No newline
+  exit(EXIT_SUCCESS);
 }

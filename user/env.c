@@ -11,7 +11,7 @@ main(int argc, char *argv[])
         char buf[1024];
         if (listenv(buf, sizeof(buf)) == 0)
             printf("%s", buf);
-        exit();
+        exit(EXIT_SUCCESS);
     }
     if (argc == 2) {
         // Parse NAME=VALUE
@@ -30,9 +30,9 @@ main(int argc, char *argv[])
             char buf[1024];
             if (listenv(buf, sizeof(buf)) == 0)
                 printf("%s", buf);
-            exit();
+            exit(EXIT_SUCCESS);
         }
     }
     printf("Usage: env [NAME=VALUE]\n");
-    exit();
+    exit(EXIT_SUCCESS);
 }

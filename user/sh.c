@@ -72,7 +72,7 @@ runcmd(struct cmd *cmd)
   //struct redircmd *rcmd;
 
   if(cmd == 0)
-    exit();
+    exit(EXIT_FAILURE);
 
   switch(cmd->type){
   default:
@@ -81,7 +81,7 @@ runcmd(struct cmd *cmd)
   case EXEC:
     ecmd = (struct execcmd*)cmd;
     if(ecmd->argv[0] == 0)
-      exit();
+      exit(EXIT_FAILURE);
 
     // Check for built-in commands first
     if(strcmp(ecmd->argv[0], "cd") == 0) {
@@ -125,7 +125,7 @@ runcmd(struct cmd *cmd)
     int fd = open(rcmd->file, rcmd->mode);
     if (fd < 0) {
       printf("open %s failed\n", rcmd->file);
-      exit();
+      exit(EXIT_FAILURE);
     }
     if (rcmd->append) {
       // Read entire file to advance offset to EOF
@@ -174,7 +174,7 @@ runcmd(struct cmd *cmd)
       runcmd(bcmd->cmd);
     break;
   }
-  exit();
+  exit(EXIT_SUCCESS);
 }
 
 int
@@ -189,6 +189,27 @@ getcmd(char *buf, int nbuf)
   gets(buf, nbuf);
   if(buf[0] == 0) // EOF
     return -1;
+  return 0;
+}
+
+int
+cd(char * buf)
+{
+  // Parse the command to handle quotes
+  struct cmd *cmd = parsecmd(buf);
+  if(cmd->type != EXEC){
+    panic("cd: syntax error");
+  }
+  struct execcmd *ecmd = (struct execcmd*)cmd;
+  if(ecmd->argv[1] == 0){
+    printf("cd: missing argument\n");
+  } else {
+    if(chdir(ecmd->argv[1]) < 0){
+      printf("cd: cannot cd to %s\n", ecmd->argv[1]);
+    }
+    // Update PWD environment variable
+    setenv("PWD", ecmd->argv[1], 1);
+  }
   return 0;
 }
 
@@ -211,7 +232,7 @@ main(int argc, char *argv[])
     int script_fd = open(argv[1], O_RDONLY);
     if(script_fd < 0){
       printf("shell: cannot open %s\n", argv[1]);
-      exit();
+      exit(EXIT_FAILURE);
     }
 
     char line[100];
@@ -222,24 +243,10 @@ main(int argc, char *argv[])
 
       // Handle 'exit' command
       if(strcmp(line, "exit") == 0){
-        exit();
+        exit(EXIT_SUCCESS);
       }
       if(buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' '){
-        // Parse the command to handle quotes
-        struct cmd *cmd = parsecmd(buf);
-        if(cmd->type != EXEC){
-          panic("cd: syntax error");
-        }
-        struct execcmd *ecmd = (struct execcmd*)cmd;
-        if(ecmd->argv[1] == 0){
-          printf("cd: missing argument\n");
-        } else {
-          if(chdir(ecmd->argv[1]) < 0){
-            printf("cd: cannot cd to %s\n", ecmd->argv[1]);
-          }
-          // Update PWD environment variable
-          setenv("PWD", ecmd->argv[1], 1);
-        }
+        cd(buf);
         continue;
       }
       // Execute other commands
@@ -251,37 +258,23 @@ main(int argc, char *argv[])
       }
     }
     close(script_fd);
-    exit();
+    exit(EXIT_SUCCESS);
   }
 
   // interactive loop
   while(getcmd(buf, sizeof(buf)) >= 0){
     if(buf[0] == 'c' && buf[1] == 'd' && buf[2] == ' '){
-        // Parse the command to handle quotes
-        struct cmd *cmd = parsecmd(buf);
-        if(cmd->type != EXEC){
-          panic("cd: syntax error");
-        }
-        struct execcmd *ecmd = (struct execcmd*)cmd;
-        if(ecmd->argv[1] == 0){
-          printf("cd: missing argument\n");
-        } else {
-          if(chdir(ecmd->argv[1]) < 0){
-            printf("cd: cannot cd to %s\n", ecmd->argv[1]);
-          }
-          // Update PWD environment variable
-          setenv("PWD", ecmd->argv[1], 1);
-        }
+        cd(buf);
         continue;
       }
     if(buf[0] == 'e' && buf[1] == 'x' && buf[2] == 'i' && buf[3] == 't'){
-      exit();
+      exit(EXIT_SUCCESS);
     }
     if(fork1() == 0)
       runcmd(parsecmd(buf));
     wait();
   }
-  exit();
+  exit(EXIT_SUCCESS);
 }
 
 void
@@ -325,7 +318,7 @@ void
 panic(char *s)
 {
   printf("%s\n", s);
-  exit();
+  exit(EXIT_FAILURE);
 }
 
 int

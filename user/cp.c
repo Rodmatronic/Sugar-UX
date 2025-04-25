@@ -90,24 +90,24 @@ main(int argc, char *argv[])
 
   if (argc != 3) {
     printf("Usage: cp source_file destination\n");
-    exit();
+    exit(EXIT_FAILURE);
   }
 
   // Check if source exists
   if (stat(argv[1], &st) < 0) {
     printf("cp: cannot stat '%s': No such file or directory\n", argv[1]);
-    exit();
+    exit(EXIT_FAILURE);
   }
 
   // Check if source is a regular file
   if ((st.type & T_FILE) == 0) {
     printf("cp: '%s' is not a regular file\n", argv[1]);
-    exit();
+    exit(EXIT_FAILURE);
   }
 
   if (copy_file(argv[1], argv[2]) < 0) {
-    exit();
+    exit(EXIT_FAILURE);
   }
 
-  exit();
+  exit(EXIT_SUCCESS);
 }

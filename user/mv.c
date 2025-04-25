@@ -45,7 +45,7 @@ main(int argc, register char *argv[])
 		goto usage;
 	if (stat(argv[1], &s1) < 0) {
 		fprintf(stderr, "mv: cannot access %s\n", argv[1]);
-		exit();
+		exit(EXIT_FAILURE);
 	}
 	if ((s1.st_mode & S_IFMT) == S_IFDIR) {
 		if (argc != 3)
@@ -62,7 +62,7 @@ main(int argc, register char *argv[])
 	return(r);
 usage:
 	fprintf(stderr, "usage: mv f1 f2; or mv d1 d2; or mv f1 ... fn d1\n");
-	exit();
+	exit(EXIT_FAILURE);
 }
 
 int
@@ -74,11 +74,11 @@ move(char *source, char *target)
 
 	if (stat(source, &s1) < 0) {
 		fprintf(stderr, "mv: cannot access %s\n", source);
-		exit();
+		exit(EXIT_FAILURE);
 	}
 	if ((s1.st_mode & S_IFMT) == S_IFDIR) {
 		fprintf(stderr, "mv: directory rename only\n");
-		exit();
+		exit(EXIT_FAILURE);
 	}
 	if (stat(target, &s2) >= 0) {
 		if ((s2.st_mode & S_IFMT) == S_IFDIR) {
@@ -92,12 +92,12 @@ move(char *source, char *target)
 		if (stat(target, &s2) >= 0) {
 			if ((s2.st_mode & S_IFMT) == S_IFDIR) {
 				fprintf(stderr, "mv: %s is a directory\n", target);
-				exit();
+				exit(EXIT_FAILURE);
 			}
 			if (s1.dev==s2.dev && s1.ino==s2.ino) {
 				fprintf(stderr, "mv: %s and %s are identical\n",
 						source, target);
-				exit();
+				exit(0);
 			}
 			if ((s2.st_mode & 0222) == 0) {
 				fprintf(stderr, "mv: %s: %o mode ", target,
@@ -106,12 +106,12 @@ move(char *source, char *target)
 			    fprintf(stderr, "mv: %s: read-only - overwrite? (y/n) ", target);
 			    gets(response, sizeof(response));
 			    if (response[0] != 'y' && response[0] != 'Y') {
-			        exit();
+			        exit(EXIT_SUCCESS);
 			    }
 			}
 			if (unlink(target) < 0) {
 				fprintf(stderr, "mv: cannot unlink %s\n", target);
-				exit();
+				exit(EXIT_FAILURE);
 			}
 		}
 	}
@@ -120,12 +120,12 @@ move(char *source, char *target)
 		i = fork();
 		if (i == -1) {
 			fprintf(stderr, "mv: try again\n");
-			exit();
+			exit(EXIT_FAILURE);
 		}
 		if (i == 0) {
 			while ((c = wait()) != i && c != -1);
 			fprintf(stderr, "mv: cannot exec cp\n");
-			exit();
+			exit(EXIT_FAILURE);
 		}
 		while ((c = wait()) != i && c != -1);
 		if (status != 0)
@@ -134,10 +134,10 @@ move(char *source, char *target)
 	}
 	if (unlink(source) < 0) {
 		fprintf(stderr, "mv: cannot unlink %s\n", source);
-		exit();
+		exit(EXIT_FAILURE);
 	}
 	//return(0);
-	exit();
+	exit(EXIT_SUCCESS);
 }
 
 int

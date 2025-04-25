@@ -20,5 +20,5 @@ main()
   }
 
   printf("up %d mins, %d seconds\n", minutes, seconds);
-  exit();
+  exit(EXIT_SUCCESS);
 }

@@ -44,7 +44,7 @@ int main() {
     user[strlen(user)-1] = 0;  // Remove newline
 
     if (strlen(user) == 0) {
-        exit();
+        exit(EXIT_FAILURE);
     }
 
     printf("Password: ");
@@ -56,7 +56,7 @@ int main() {
     // Open /etc/passwd
     if ((fd = open("/etc/passwd", 0)) < 0) {
         printf("Error: Cannot open passwd file\n");
-        exit();
+        exit(EXIT_FAILURE);
     }
     char *fields[7];
     char c;
@@ -132,11 +132,11 @@ int main() {
             // Child process
             if (setuid(uid) < 0) {
                 printf("login: setuid failed\n");
-                exit();
+                exit(EXIT_FAILURE);
             }
             exec(fields[6], argv);
             printf("login: exec sh failed\n");
-            exit();
+            exit(EXIT_FAILURE);
         }
         while (wait() != pid);
 
@@ -144,5 +144,5 @@ int main() {
         printf("Login incorrect\n");
     }
 
-    exit();
+    exit(EXIT_SUCCESS);
 }

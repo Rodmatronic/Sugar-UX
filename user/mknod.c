@@ -13,7 +13,7 @@ main(int argc, char *argv[])
     }
     if (argc < 4) {
         fprintf(2, "Usage: mknod NAME [MAJOR MINOR]\n");
-        exit();
+        exit(EXIT_FAILURE);
     } else {
         char *name = argv[1];
         int major = 0;
@@ -22,5 +22,5 @@ main(int argc, char *argv[])
         minor = atoi(argv[3]);
         mknod(name, major, minor);
     }
-    exit();
+    exit(EXIT_SUCCESS);
 }

@@ -66,6 +66,7 @@ struct proc {
   char name[16];               // Process name (debugging)
   struct env_var env[MAX_ENV_VARS];  // Environment variables
   int env_count;               // Number of environment variables
+  int exit_status;             // Exit status for wait()
 };
 
 struct ptable {
