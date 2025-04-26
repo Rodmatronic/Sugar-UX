@@ -80,9 +80,7 @@ static uchar normalmap[512] =
   [0xCB] KEY_LF,    [0xCD] KEY_RT,
   [0x97] KEY_HOME,  [0xCF] KEY_END,
   [0xD2] KEY_INS,   [0xD3] KEY_DEL,
-  [0x3B] KEY_F1,  [0x3C] KEY_F2,  [0x3D] KEY_F3,  [0x3E] KEY_F4,
-  [0x3F] KEY_F5,  [0x40] KEY_F6,  [0x41] KEY_F7,  [0x42] KEY_F8,
-  [0x43] KEY_F9,  [0x44] KEY_F10, [0x57] KEY_F11, [0x58] KEY_F12
+  [0xEB] KEY_F1,  [0xEC] KEY_F2
 };
 
 static uchar shiftmap[512] =
@@ -105,9 +103,6 @@ static uchar shiftmap[512] =
   [0xCB] KEY_LF,    [0xCD] KEY_RT,
   [0x97] KEY_HOME,  [0xCF] KEY_END,
   [0xD2] KEY_INS,   [0xD3] KEY_DEL,
-  [0x3B] KEY_F1,  [0x3C] KEY_F2,  [0x3D] KEY_F3,  [0x3E] KEY_F4,
-  [0x3F] KEY_F5,  [0x40] KEY_F6,  [0x41] KEY_F7,  [0x42] KEY_F8,
-  [0x43] KEY_F9,  [0x44] KEY_F10, [0x57] KEY_F11, [0x58] KEY_F12
 };
 
 static uchar ctlmap[256] =

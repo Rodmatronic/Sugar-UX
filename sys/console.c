@@ -265,13 +265,12 @@ consoleintr(int (*getc)(void))
         }
       }
       break;
-      case KEY_F1 ... KEY_F12: {
-          int wanted_tty = c - KEY_F1;
-          if(wanted_tty >= 0 && wanted_tty < NTERMINALS) {
-            switch_terminal(wanted_tty);
-          }
-        break;
-      }
+    case KEY_F1:  // Switch to previous terminal
+      switch_terminal((active_terminal - 1 + NTERMINALS) % NTERMINALS);
+      break;
+    case KEY_F2:  // Switch to next terminal
+      switch_terminal((active_terminal + 1) % NTERMINALS);
+      break;
     case C('H'): case '\x7f':  // Backspace
       if(terminals[tty].input.e != terminals[tty].input.w){
         terminals[tty].input.e--;
