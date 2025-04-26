@@ -188,6 +188,7 @@ UPROGS = \
 	$(OUT_DIR)/_uname \
 	$(OUT_DIR)/_uptime \
 	$(OUT_DIR)/_wc \
+	$(OUT_DIR)/_whoami \
 	$(OUT_DIR)/_yes
 
 $(OUT_DIR)/_%: $(USER_DIR)/%.o $(ULIB)
