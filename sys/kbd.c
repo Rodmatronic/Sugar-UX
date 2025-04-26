@@ -3,10 +3,10 @@
 #include "defs.h"
 #include "kbd.h"
 
-int
-kbdgetc(void)
+int kbdgetc(void)
 {
   static uint shift;
+  static int extcode = 0;
   static uchar *charcode[4] = {
     normalmap, shiftmap, ctlmap, ctlmap
   };
@@ -17,29 +17,51 @@ kbdgetc(void)
     return -1;
   data = inb(KBDATAP);
 
-  if(data == 0xE0){
-    shift |= E0ESC;
-    return 0;
-  } else if(data & 0x80){
-    // Key released
-    data = (shift & E0ESC ? data : data & 0x7F);
-    shift &= ~(shiftcode[data] | E0ESC);
-    return 0;
-  } else if(shift & E0ESC){
-    // Last character was an E0 escape; or with 0x80
-    data |= 0x80;
-    shift &= ~E0ESC;
+  // Handle extended scancode prefix
+  if(data == 0xE0) {
+    extcode = 1;
+    return -1;
   }
 
-  shift |= shiftcode[data];
-  shift ^= togglecode[data];
-  c = charcode[shift & (CTL | SHIFT)][data];
-  if(shift & CAPSLOCK){
-    if('a' <= c && c <= 'z')
-      c += 'A' - 'a';
-    else if('A' <= c && c <= 'Z')
-      c += 'a' - 'A';
+  // Process key releases
+  if(data & 0x80) {
+    data = (data & 0x7F) | (extcode ? 0xE000 : 0);
+    extcode = 0;
+    // Handle modifier releases
+    switch(data) {
+    case 0x1D: case 0x9D: shift &= ~CTL; break;
+    case 0x38: case 0xB8: shift &= ~ALT; break;
+    case 0x2A: case 0x36: shift &= ~SHIFT; break;
+    }
+    return -1;
   }
+
+  // Handle extended codes
+  if(extcode) {
+    data |= 0xE000;
+    extcode = 0;
+  }
+
+  // Handle modifiers
+  switch(data) {
+  case 0x1D: case 0x9D: shift |= CTL; return -1;
+  case 0x38: case 0xB8: shift |= ALT; return -1;
+  case 0x2A: case 0x36: shift |= SHIFT; return -1;
+  }
+
+  // Map remaining keys
+  c = charcode[shift & (CTL | SHIFT)][data & 0xFF];
+  
+  // Combine with extended prefix
+  if(data & 0xE000)
+    c |= (data & 0xFF00);
+
+  // Handle case toggling
+  if(shift & CAPSLOCK) {
+    if('a' <= c && c <= 'z') c += 'A' - 'a';
+    else if('A' <= c && c <= 'Z') c += 'a' - 'A';
+  }
+
   return c;
 }
 
