@@ -8,8 +8,7 @@ void
 wait_prompt() {
   char c;
   write(1, "--More--", 8);
-  // Open console device explicitly
-  int console_fd = open("/dev/console", O_RDONLY);
+  int console_fd = open("/dev/tty", O_RDONLY);
   if (console_fd < 0) {
     exit(EXIT_FAILURE); // quit if can't read
   }

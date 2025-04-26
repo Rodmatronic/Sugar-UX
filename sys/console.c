@@ -364,14 +364,22 @@ int consoleread_tty(int tty, char *dst, int n);
 int
 ttyread(struct inode *ip, char *dst, int n)
 {
-  int tty = ip->minor;  // Minor number determines TTY index
+  int tty = ip->minor;
+  // Use active terminal for /dev/tty
+  if (tty == 255) {
+    tty = active_terminal; // Directly use global active terminal
+  }
   return consoleread_tty(tty, dst, n);
 }
 
 int
 ttywrite(struct inode *ip, char *buf, int n)
 {
-  int tty = ip->minor;  // Use minor number as TTY index
+  int tty = ip->minor;
+  // Use active terminal for /dev/tty
+  if (tty == 255) {
+    tty = active_terminal; // Directly use global active terminal
+  }
   for(int i=0; i<n; i++)
     consputc(buf[i] & 0xff, ucolour, tty);
   return n;

@@ -63,6 +63,7 @@ main(void)
   mknod("/dev/kmem", 3, 0);
   mknod("/dev/zero", 4, 0);
   mknod("/dev/random", 5, 0);
+  mknod("/dev/tty", 6, 255);
   link("/dev/random", "/dev/urandom");
 
   mkdir("/root");
