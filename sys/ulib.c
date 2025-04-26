@@ -4,6 +4,12 @@
 #include "user.h"
 #include "x86.h"
 
+int
+isdigit(int c)
+{
+  return c >= '0' && c <= '9';
+}
+
 char*
 strdup(const char *s)
 {

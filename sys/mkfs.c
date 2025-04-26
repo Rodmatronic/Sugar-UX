@@ -256,6 +256,8 @@ for (i = 2; i < argc; i++) {
       iappend(sbinino, &de, sizeof(de));
     } else if (strcmp(name, "mknod") == 0) {
       iappend(sbinino, &de, sizeof(de));
+    } else if (strcmp(name, "getty") == 0) {
+      iappend(sbinino, &de, sizeof(de));
     } else {
         iappend(binino, &de, sizeof(de));
     }

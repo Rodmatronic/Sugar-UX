@@ -14,8 +14,10 @@
 #include "mmu.h"
 #include "proc.h"
 #include "x86.h"
+#include "kbd.h"
 
-static void consputc(int, int colour);
+static void consputc(int c, int colour, int tty);
+static void cgaputc(int colour, int c, int tty);
 static int echo = 1;
 static int panicked = 0;
 
@@ -28,10 +30,18 @@ static struct {
 } cons;
 
 void
-console_echo(int enable) {
-  acquire(&cons.lock);
-  echo = enable;
-  release(&cons.lock);
+console_echo(int enable)
+{
+  struct proc *p = myproc();
+  
+  // Validate TTY index
+  if(p->tty < 0 || p->tty >= NTERMINALS) {
+    return;
+  }
+
+  acquire(&terminals[p->tty].input_lock);
+  terminals[p->tty].echo = enable;
+  release(&terminals[p->tty].input_lock);
 }
 
 static void
@@ -55,8 +65,8 @@ printint(int xx, int base, int sign)
   if(sign)
     buf[i++] = '-';
 
-  while(--i >= 0)
-    consputc(buf[i], kcolour);
+    while(--i >= 0)
+    consputc(buf[i], kcolour, 0); // Hardcode to TTY0
 }
 //PAGEBREAK: 50
 
@@ -78,7 +88,7 @@ kprintf(char *fmt, ...)
   argp = (uint*)(void*)(&fmt + 1);
   for(i = 0; (c = fmt[i] & 0xff) != 0; i++){
     if(c != '%'){
-      consputc(c, kcolour);
+      consputc(c, kcolour, 0);
       continue;
     }
     c = fmt[++i] & 0xff;
@@ -96,15 +106,15 @@ kprintf(char *fmt, ...)
       if((s = (char*)*argp++) == 0)
         s = "(null)";
       for(; *s; s++)
-        consputc(*s, kcolour);
+        consputc(*s, kcolour, 0);
       break;
     case '%':
-      consputc('%', kcolour);
+      consputc('%', kcolour, 0);
       break;
     default:
       // Print unknown % sequence to draw attention.
-      consputc('%', kcolour);
-      consputc(c, kcolour);
+      consputc('%', kcolour, 0);
+      consputc(c, kcolour, 0);
       break;
     }
   }
@@ -138,59 +148,87 @@ panic(char *s)
 static ushort *crt = (ushort*)P2V(0xb8000);  // CGA memory
 #define IS_ASCII_CHAR(c) ((c >= 0x00 && c <= 0x1F) || (c >= 0xE2 && c <= 0xE5))
 
-static void
-cgaputc(int colour, int c)
+void
+switch_terminal(int new_tty)
 {
-  int pos;
-
-  // Cursor position: col + 80*row.
-  outb(CRTPORT, 14);
-  pos = inb(CRTPORT+1) << 8;
-  outb(CRTPORT, 15);
-  pos |= inb(CRTPORT+1);
-
-  if(c == '\n')
-    pos += 80 - pos%80;
-  else if(c == BACKSPACE){
-    if(pos > 0) --pos;
-  } else if(c == 0x09){
-    // Tab: 8 spaces.
-    pos += 8 - (pos%8);
-  } else if(c >= ' ' && c < 0x7F){
-    // Normal character.
-    crt[pos++] = c | colour;
-  } else if(c == 0x7F){
-    // Delete
-    crt[pos++] = ' ' | colour;
-  } else if(c == '\r'){
-    // Carriage return
-    pos -= pos % 80;
-  } else if(c == '\b'){
-    // Backspace
-    if(pos > 0) --pos;
-  } else if(!IS_ASCII_CHAR(c)) {
-    // Only print ASCII
-    crt[pos++] = (c&0xff) | colour;
+  if (new_tty >= 0 && new_tty < NTERMINALS) {
+    active_terminal = new_tty;
+    // Update CGA memory to new terminal's buffer
+    memmove(crt, terminals[new_tty].crt_buffer, sizeof(crt[0])*80*25);
   }
 
-  if(pos < 0 || pos > 25*80)
-    panic("pos under/overflow");
-
-  if((pos/80) >= 25){  // Scroll up.
-    memmove(crt, crt+80, sizeof(crt[0])*24*80);
-    pos -= 80;
-    memset(crt+pos, 0, sizeof(crt[0])*(25*80 - pos));
-  }
-
+  // Save current terminal's cursor and screen state is already maintained
+  // Load new terminal's state
+  struct terminal *term = &terminals[new_tty];
+  memmove(crt, term->crt_buffer, sizeof(term->crt_buffer));
+  int pos = term->cursor_pos;
   outb(CRTPORT, 14);
-  outb(CRTPORT+1, pos>>8);
+  outb(CRTPORT+1, pos >> 8);
   outb(CRTPORT, 15);
   outb(CRTPORT+1, pos);
-  crt[pos] = ' ' | ucolour;
+  active_terminal = new_tty;
+  crt[pos] = '\0' | ucolour;
 }
 
-void
-consputc(int c, int colour)
+static void
+cgaputc(int colour, int c, int tty)
+{
+  struct terminal *term = &terminals[tty];
+  int pos = term->cursor_pos;
+  ushort *active_crt = crt;  // Physical CGA memory
+
+  // Handle character processing
+  if(c == '\n') {
+    pos += 80 - pos%80;
+  } else if(c == BACKSPACE) {
+    if(pos > 0) --pos;
+  } else if(c == 0x09) {  // Tab
+    pos += 8 - (pos%8);
+  } else if(c >= ' ' && c < 0x7F) {
+    term->crt_buffer[pos] = c | colour;
+    if(tty == active_terminal)
+      active_crt[pos] = c | colour;
+    pos++;
+  } else if(c == 0x7F) {  // Delete
+    term->crt_buffer[pos] = ' ' | colour;
+    if(tty == active_terminal)
+      active_crt[pos] = ' ' | colour;
+    pos++;
+  } else if(c == '\r') {
+    pos -= pos % 80;
+  } else if(c == '\b') {
+    if(pos > 0) --pos;
+  } else if(!IS_ASCII_CHAR(c)) {
+    term->crt_buffer[pos] = (c&0xff) | colour;
+    if(tty == active_terminal)
+      active_crt[pos] = (c&0xff) | colour;
+    pos++;
+  }
+
+  // Handle screen scrolling
+  if((pos/80) >= 25) {
+    memmove(term->crt_buffer, term->crt_buffer + 80, sizeof(term->crt_buffer[0])*24*80);
+    if(tty == active_terminal)
+      memmove(active_crt, active_crt + 80, sizeof(active_crt[0])*24*80);
+    
+    pos -= 80;
+    memset(term->crt_buffer + pos, 0, sizeof(term->crt_buffer[0])*(25*80 - pos));
+    if(tty == active_terminal)
+      memset(active_crt + pos, 0, sizeof(active_crt[0])*(25*80 - pos));
+  }
+
+  term->cursor_pos = pos;
+  if(tty == active_terminal) {
+    outb(CRTPORT, 14);
+    outb(CRTPORT+1, pos>>8);
+    outb(CRTPORT, 15);
+    outb(CRTPORT+1, pos);
+    crt[pos] = '\0' | ucolour;
+  }
+}
+
+static void
+consputc(int c, int colour, int tty)
 {
   if(panicked){
     cli();
@@ -202,65 +240,65 @@ consputc(int c, int colour)
     uartputc('\b'); uartputc(' '); uartputc('\b');
   } else
     uartputc(c);
-  cgaputc(colour, c); // Pass the colour parameter to cgaputc
+  cgaputc(colour, c, tty);
 }
-
-#define INPUT_BUF 128
-struct {
-  char buf[INPUT_BUF];
-  uint r;  // Read index
-  uint w;  // Write index
-  uint e;  // Edit index
-} input;
-
-#define C(x)  ((x)-'@')  // Control-x
 
 void
 consoleintr(int (*getc)(void))
 {
   int c, doprocdump = 0;
+  int tty = active_terminal;
 
-  acquire(&cons.lock);
+  acquire(&terminals[tty].input_lock);
   while((c = getc()) >= 0){
     switch(c){
     case C('P'):  // Process listing.
       // procdump() locks cons.lock indirectly; invoke later
       doprocdump = 1;
       break;
-    case C('U'):  // Kill line.
-      while(input.e != input.w &&
-            input.buf[(input.e-1) % INPUT_BUF] != '\n'){
-        input.e--;
-        consputc(BACKSPACE, ucolour);
-      }
-      break;
-    case C('H'): case '\x7f':  // Backspace
-      if(input.e != input.w){
-        input.e--;
-        if (echo) {
-          consputc(BACKSPACE, ucolour);
+      case C('U'):  // Kill line.
+        while(terminals[tty].input.e != terminals[tty].input.w &&
+            terminals[tty].input.buf[(terminals[tty].input.e-1) % INPUT_BUF] != '\n'){
+        terminals[tty].input.e--;
+        if (terminals[tty].echo) {
+          consputc(c, terminals[tty].color, active_terminal); // Echo to active TTY
         }
       }
       break;
-// In consoleintr()
-default:
-  if(c != 0 && input.e-input.r < INPUT_BUF){
-    c = (c == '\r') ? '\n' : c;
-    input.buf[input.e++ % INPUT_BUF] = c;
-    // Only echo if enabled
-    if (echo) {
-      consputc(c, ucolour);
-    }
-    if(c == '\n' || c == C('D') || input.e == input.r+INPUT_BUF){
-      input.w = input.e;
-      wakeup(&input.r);
-    }
-  }
-  break;
+      case KEY_F1 ... KEY_F12: {
+          int wanted_tty = c - KEY_F1;
+          if(wanted_tty >= 0 && wanted_tty < NTERMINALS) {
+            switch_terminal(wanted_tty);
+          }
+        break;
+      }
+    case C('H'): case '\x7f':  // Backspace
+      if(terminals[tty].input.e != terminals[tty].input.w){
+        terminals[tty].input.e--;
+        if (terminals[tty].echo) {
+          // Erase character: [BACKSPACE][SPACE][BACKSPACE]
+          consputc(BACKSPACE, terminals[tty].color, tty);
+          consputc(' ', terminals[tty].color, tty);
+          consputc(BACKSPACE, terminals[tty].color, tty);
+        }
+      }
+      break;
+    default:
+      if(c != 0 && terminals[tty].input.e - terminals[tty].input.r < INPUT_BUF){
+        c = (c == '\r') ? '\n' : c;
+        terminals[tty].input.buf[terminals[tty].input.e++ % INPUT_BUF] = c;
+        if (terminals[tty].echo) {
+          consputc(c, terminals[tty].color, tty);
+        }
+        if(c == '\n' || c == C('D') || terminals[tty].input.e == terminals[tty].input.r + INPUT_BUF){
+          terminals[tty].input.w = terminals[tty].input.e;
+          wakeup(&terminals[tty].input.r);
+        }
+      }
       break;
     }
   }
-  release(&cons.lock);
+  release(&terminals[tty].input_lock);
   if(doprocdump) {
     procdump();  // now call procdump() wo. cons.lock held
   }
@@ -269,27 +307,29 @@ default:
 int
 consoleread(struct inode *ip, char *dst, int n)
 {
+  struct proc *p = myproc();
+  int tty = p->tty;
   uint target;
   int c;
 
   iunlock(ip);
   target = n;
-  acquire(&cons.lock);
+  acquire(&terminals[tty].input_lock);
   while(n > 0){
-    while(input.r == input.w){
-      if(myproc()->killed){
-        release(&cons.lock);
+    while(terminals[tty].input.r == terminals[tty].input.w){
+      if(p->killed){
+        release(&terminals[tty].input_lock);
         ilock(ip);
         return -1;
       }
-      sleep(&input.r, &cons.lock);
+      sleep(&terminals[tty].input.r, &terminals[tty].input_lock);
     }
-    c = input.buf[input.r++ % INPUT_BUF];
+    c = terminals[tty].input.buf[terminals[tty].input.r++ % INPUT_BUF];
     if(c == C('D')){  // EOF
       if(n < target){
         // Save ^D for next time, to make sure
         // caller gets a 0-byte result.
-        input.r--;
+        terminals[tty].input.r--;
       }
       break;
     }
@@ -298,7 +338,7 @@ consoleread(struct inode *ip, char *dst, int n)
     if(c == '\n')
       break;
   }
-  release(&cons.lock);
+  release(&terminals[tty].input_lock);
   ilock(ip);
 
   return target - n;
@@ -308,26 +348,84 @@ int
 consolewrite(struct inode *ip, char *buf, int n)
 {
   int i;
+  struct proc *p = myproc();
 
   iunlock(ip);
   acquire(&cons.lock);
   for(i = 0; i < n; i++)
-    consputc(buf[i] & 0xff, ucolour);
+    consputc(buf[i] & 0xff, ucolour, p->tty);
   release(&cons.lock);
   ilock(ip);
 
   return n;
 }
 
+int consoleread_tty(int tty, char *dst, int n);
+
+int
+ttyread(struct inode *ip, char *dst, int n)
+{
+  int tty = ip->minor;  // Minor number determines TTY index
+  return consoleread_tty(tty, dst, n);
+}
+
+int
+ttywrite(struct inode *ip, char *buf, int n)
+{
+  int tty = ip->minor;  // Use minor number as TTY index
+  for(int i=0; i<n; i++)
+    consputc(buf[i] & 0xff, ucolour, tty);
+  return n;
+}
+
+int
+consoleread_tty(int tty, char *dst, int n)
+{
+  uint target;
+  int c;
+  struct proc *p = myproc();
+
+  acquire(&terminals[tty].input_lock);
+  target = n;
+  while(n > 0){
+    while(terminals[tty].input.r == terminals[tty].input.w){
+      if(p->killed){
+        release(&terminals[tty].input_lock);
+        return -1;
+      }
+      sleep(&terminals[tty].input.r, &terminals[tty].input_lock);
+    }
+    c = terminals[tty].input.buf[terminals[tty].input.r++ % INPUT_BUF];
+    if(c == C('D')){  // EOF
+      if(n < target){
+        terminals[tty].input.r--;
+      }
+      break;
+    }
+    *dst++ = c;
+    --n;
+    if(c == '\n')
+      break;
+  
+  }
+  release(&terminals[tty].input_lock);
+  return target - n;
+}
+
 void
 consoleinit(void)
 {
-  initlock(&cons.lock, "console");
+  for (int i = 0; i < NTERMINALS; i++) {
+    initlock(&terminals[i].input_lock, "console");
+    terminals[i].echo = 1;
+    terminals[i].color = ucolour;
+    memset(terminals[i].crt_buffer, 0, sizeof(terminals[i].crt_buffer));
+  }
 
   devsw[CONSOLE].write = consolewrite;
   devsw[CONSOLE].read = consoleread;
-  cons.locking = 1;
-
+  devsw[TTY_MAJOR].write = ttywrite;
+  devsw[TTY_MAJOR].read = ttyread;
   ioapicenable(IRQ_KBD, 0);
 }
 

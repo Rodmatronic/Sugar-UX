@@ -163,6 +163,7 @@ UPROGS = \
 	$(OUT_DIR)/_env \
 	$(OUT_DIR)/_date \
 	$(OUT_DIR)/_getuid \
+	$(OUT_DIR)/_getty \
 	$(OUT_DIR)/_grep \
 	$(OUT_DIR)/_halt \
 	$(OUT_DIR)/_head \

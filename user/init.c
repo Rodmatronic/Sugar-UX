@@ -7,7 +7,7 @@ char *argv[] = { "login", 0 };
 char *dateargv[] = { "date", "", 0 }; 
 #define stderr 2
 #define version "1.00"
-
+#define ttynum  10
 /*
  * 0 = Powering off
  * 1 = Single user
@@ -44,13 +44,17 @@ main(void)
   mkdir("/dev");
   mkdir("/var");
 
-  // /dev/console is essential, do checks
-  if(open("/dev/console", O_RDWR) < 0){
-    mknod("/dev/console", 1, 1);
-    open("/dev/console", O_RDWR);
+  // Create TTY devices
+  for(int i=0; i<ttynum; i++) {
+    char path[20];
+    snprintf(path, sizeof(path), "/dev/tty%d", i);
+    mknod(path, 6, i);
   }
-  dup(0);  // stdout
-  dup(0);  // stderr
+
+  // Open console
+  int con = open("/dev/tty0", O_RDWR);
+  dup(con);  // stdout
+  dup(con);  // stderr
 
   printf("INIT: version %s booting\n", version);
 
@@ -103,17 +107,19 @@ main(void)
     printf("init: fork failed for date\n");
   }
 
-  printf("\nSugar/Unix login\n(Default user is 'sugar' with blank pass. Root pass is 'root')\n");
+  char *tty_prefix = "/dev/tty";
+  for(int i=0; i<ttynum; i++) { // Make getty processes
+      if(fork() == 0) {
+          char tty_path[20];
+          snprintf(tty_path, sizeof(tty_path), "%s%d", tty_prefix, i);
+          char *getty_argv[] = { "getty", tty_path, 0 };
+          exec("/sbin/getty", getty_argv);
+          printf("init: failed to start getty on %s\n", tty_path);
+          exit(1);
+      }
+  }
 
   for(;;){
-    pid = fork();
-    if(pid < 0){
-      printf("init: fork failed\n");
-    }
-    if(pid == 0){
-      exec("/bin/login", argv);
-      printf("init: exec login failed\n");
-    }
     while((wpid=wait()) >= 0 && wpid != pid)
       printf("zombie!\n");
   }

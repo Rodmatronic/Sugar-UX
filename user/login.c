@@ -36,6 +36,7 @@ char* monthname(int m) {
 }
 
 int main() {
+    main:
     char user[50], pass[50], line[MAX_LINE];
     int fd, match = 0;
 
@@ -44,7 +45,7 @@ int main() {
     user[strlen(user)-1] = 0;  // Remove newline
 
     if (strlen(user) == 0) {
-        exit(EXIT_FAILURE);
+        goto main;  // Retry if empty
     }
 
     printf("Password: ");
@@ -56,7 +57,7 @@ int main() {
     // Open /etc/passwd
     if ((fd = open("/etc/passwd", 0)) < 0) {
         printf("Error: Cannot open passwd file\n");
-        exit(EXIT_FAILURE);
+        goto main;
     }
     char *fields[7];
     char c;
@@ -132,17 +133,18 @@ int main() {
             // Child process
             if (setuid(uid) < 0) {
                 printf("login: setuid failed\n");
-                exit(EXIT_FAILURE);
+                goto main;
             }
             exec(fields[6], argv);
             printf("login: exec sh failed\n");
-            exit(EXIT_FAILURE);
+            goto main;
         }
         while (wait() != pid);
 
     } else {
         printf("Login incorrect\n");
+        goto main;
     }
 
-    exit(EXIT_SUCCESS);
+    goto main;
 }

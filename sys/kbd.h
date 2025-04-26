@@ -27,6 +27,18 @@
 #define KEY_PGDN        0xE7
 #define KEY_INS         0xE8
 #define KEY_DEL         0xE9
+#define KEY_F1          0x3B
+#define KEY_F2          0x3C
+#define KEY_F3          0x3D
+#define KEY_F4          0x3E
+#define KEY_F5          0x3F
+#define KEY_F6          0x40
+#define KEY_F7          0x41
+#define KEY_F8          0x42
+#define KEY_F9          0x43
+#define KEY_F10         0x44
+#define KEY_F11         0x57
+#define KEY_F12         0x58
 
 // C('A') == Control-A
 #define C(x) (x - '@')
@@ -48,7 +60,7 @@ static uchar togglecode[256] =
   [0x46] SCROLLLOCK
 };
 
-static uchar normalmap[256] =
+static uchar normalmap[512] =
 {
   NO,   0x1B, '1',  '2',  '3',  '4',  '5',  '6',  // 0x00
   '7',  '8',  '9',  '0',  '-',  '=',  '\b', '\t',
@@ -67,10 +79,13 @@ static uchar normalmap[256] =
   [0xC9] KEY_PGUP,  [0xD1] KEY_PGDN,
   [0xCB] KEY_LF,    [0xCD] KEY_RT,
   [0x97] KEY_HOME,  [0xCF] KEY_END,
-  [0xD2] KEY_INS,   [0xD3] KEY_DEL
+  [0xD2] KEY_INS,   [0xD3] KEY_DEL,
+  [0x3B] KEY_F1,  [0x3C] KEY_F2,  [0x3D] KEY_F3,  [0x3E] KEY_F4,
+  [0x3F] KEY_F5,  [0x40] KEY_F6,  [0x41] KEY_F7,  [0x42] KEY_F8,
+  [0x43] KEY_F9,  [0x44] KEY_F10, [0x57] KEY_F11, [0x58] KEY_F12
 };
 
-static uchar shiftmap[256] =
+static uchar shiftmap[512] =
 {
   NO,   033,  '!',  '@',  '#',  '$',  '%',  '^',  // 0x00
   '&',  '*',  '(',  ')',  '_',  '+',  '\b', '\t',
@@ -89,7 +104,10 @@ static uchar shiftmap[256] =
   [0xC9] KEY_PGUP,  [0xD1] KEY_PGDN,
   [0xCB] KEY_LF,    [0xCD] KEY_RT,
   [0x97] KEY_HOME,  [0xCF] KEY_END,
-  [0xD2] KEY_INS,   [0xD3] KEY_DEL
+  [0xD2] KEY_INS,   [0xD3] KEY_DEL,
+  [0x3B] KEY_F1,  [0x3C] KEY_F2,  [0x3D] KEY_F3,  [0x3E] KEY_F4,
+  [0x3F] KEY_F5,  [0x40] KEY_F6,  [0x41] KEY_F7,  [0x42] KEY_F8,
+  [0x43] KEY_F9,  [0x44] KEY_F10, [0x57] KEY_F11, [0x58] KEY_F12
 };
 
 static uchar ctlmap[256] =

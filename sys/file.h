@@ -46,4 +46,6 @@ extern struct devsw devsw[];
 #define KMEM    3   // Kernel memory device
 #define ZERO    4
 #define RANDOM  5
+#define TTY     6
+#define TTY_MAJOR 6
 #endif

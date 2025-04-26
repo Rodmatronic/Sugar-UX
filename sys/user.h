@@ -53,6 +53,7 @@ int     strcspn(const char *s, const char *reject);
 int     strspn(const char *s, const char *accept);
 int     snprintf(char *buf, int size, const char *fmt, ...);
 char*   strdup(const char *s);
+int     isdigit(int c);
 
 int	    gettime(struct rtcdate*);
 void	setcursor(void);

@@ -201,6 +201,7 @@ fork(void)
   }
 
   np->uid = curproc->uid; // Inherit UID
+  np->tty = curproc->tty; // Inherit TTY
 
   // Copy environment variables from parent to child
   np->env_count = curproc->env_count;

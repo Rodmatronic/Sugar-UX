@@ -5,6 +5,34 @@
 
 #define MAX_ENTRIES 512
 
+// Natural order string comparison: compares numbers numerically
+int
+natcmp(const char *a, const char *b)
+{
+    while (*a && *b) {
+        if (isdigit(*a) && isdigit(*b)) {
+            // Compare numbers as integers
+            int ai = 0, bi = 0;
+            while (isdigit(*a)) {
+                ai = ai * 10 + (*a - '0');
+                a++;
+            }
+            while (isdigit(*b)) {
+                bi = bi * 10 + (*b - '0');
+                b++;
+            }
+            if (ai != bi)
+                return ai - bi;
+        } else {
+            if (*a != *b)
+                return *a - *b;
+            a++;
+            b++;
+        }
+    }
+    return *a - *b;
+}
+
 char*
 fmtname(char *path) {
     static char buf[DIRSIZ+1];
@@ -60,34 +88,30 @@ void ls(char *path) {
 
         while(read(fd, &de, sizeof(de)) == sizeof(de)){
             if(de.inum == 0)
-                continue;
+              continue;
             memmove(p, de.name, DIRSIZ);
             p[DIRSIZ] = 0;
-            if(stat(buf, &st) < 0){
-                fprintf(2, "ls: cannot stat %s\n", buf);
-                continue;
-            }
-
+          
+            // Add null termination for safety
             char entry_name[DIRSIZ+1];
-            memmove(entry_name, de.name, DIRSIZ);
-            entry_name[DIRSIZ] = '\0';
-
-            int len = strlen(entry_name);
-            if (len == 0)
-                continue;
-
-            if (num_entries < MAX_ENTRIES) {
-                strncpy(names[num_entries], entry_name, DIRSIZ);
-                names[num_entries][DIRSIZ] = '\0';
-                num_entries++;
-            }
-        }
+            strncpy(entry_name, de.name, DIRSIZ);
+            entry_name[DIRSIZ] = '\0'; // Ensure termination
+          
+            // Skip empty names
+            if(strlen(entry_name) == 0) continue;
+          
+            // Prevent buffer overflow
+            if(num_entries >= MAX_ENTRIES) break;
+          
+            strncpy(names[num_entries], entry_name, DIRSIZ);
+            num_entries++;
+          }
 
         // Sort entries
         int i, j;
         for (i = 0; i < num_entries - 1; i++) {
             for (j = 0; j < num_entries - i - 1; j++) {
-                if (strcmp(names[j], names[j+1]) > 0) {
+                if (natcmp(names[j], names[j+1]) > 0) {
                     char temp[DIRSIZ+1];
                     strcpy(temp, names[j]);
                     strcpy(names[j], names[j+1]);

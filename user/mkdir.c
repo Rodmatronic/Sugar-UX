@@ -13,8 +13,9 @@ main(int argc, char *argv[])
   }
 
   for(i = 1; i < argc; i++){
-    if (argv[i] >= 14) {
+    if (strlen(argv[i]) >= 14) {
       fprintf(2, "mkdir: %s: File name too long\n", argv[i]);
+      continue;
     }
     if(mkdir(argv[i]) < 0){
       printf("mkdir: %s failed to create\n", argv[i]);
