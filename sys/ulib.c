@@ -4,6 +4,38 @@
 #include "user.h"
 #include "x86.h"
 
+long
+strtol(const char *nptr, char **endptr, int base)
+{
+    const char *p = nptr;
+    long val = 0;
+    int sign = 1;
+
+    // Skip whitespace
+    while (*p == ' ' || *p == '\t')
+        p++;
+
+    // Handle sign
+    if (*p == '-') {
+        sign = -1;
+        p++;
+    } else if (*p == '+') {
+        p++;
+    }
+
+    if (base == 10) {
+        while (*p >= '0' && *p <= '9') {
+            val = val * 10 + (*p - '0');
+            p++;
+        }
+    }
+
+    if (endptr != 0)
+        *endptr = (char*)p;
+
+    return sign * val;
+}
+
 int
 isdigit(int c)
 {
@@ -147,6 +179,14 @@ strchr(const char *s, char c)
     if(*s == c)
       return (char*)s;
   return 0;
+}
+
+int 
+getc(int fd)
+{
+  char c;
+  if(read(fd, &c, 1) <= 0) return -1;  // EOF/error
+  return (unsigned char)c;
 }
 
 char*

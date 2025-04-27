@@ -144,7 +144,6 @@ snprintf(char *buf, int size, const char *fmt, ...)
     buf[n] = 0;
     return n;
 }
-
 void
 printf(char *fmt, ...)
 {
@@ -155,6 +154,7 @@ printf(char *fmt, ...)
   state = 0;
   ap = (uint*)(void*)&fmt + 1;
   int width = 0;
+  int precision = -1;
   char pad_char = ' ';
 
   for(i = 0; fmt[i]; i++){
@@ -164,6 +164,7 @@ printf(char *fmt, ...)
         state = '%';
         width = 0;
         pad_char = ' ';
+        precision = -1;
       } else {
         putc(1, c);
       }
@@ -172,7 +173,22 @@ printf(char *fmt, ...)
         pad_char = '0';
       } else if(c >= '1' && c <= '9'){
         width = width * 10 + (c - '0');
-        continue; // keep parsing digits
+      } else if(c == '.'){
+        // Handle precision
+        i++;
+        c = fmt[i];
+        if(c == '*'){
+          precision = *ap++;
+          i++;
+        } else {
+          precision = 0;
+          while(c >= '0' && c <= '9'){
+            precision = precision * 10 + (c - '0');
+            i++;
+            c = fmt[i];
+          }
+        }
+        i--; // Adjust position for format specifier
       } else if(c == 'd'){
         printint(1, *ap, 10, 1, width, pad_char);
         ap++;
@@ -186,17 +202,26 @@ printf(char *fmt, ...)
         ap++;
         if(s == 0)
           s = "(null)";
+        
+        // Calculate printable length
         int len = 0;
-        for (char *t = s; *t; t++) len++;
-        for (int j = len; j < width; j++)
-          putc(1, pad_char);
-        while(*s != 0){
-          putc(1, *s++);
+        char *t = s;
+        while(*t && (precision < 0 || len < precision)){
+          len++;
+          t++;
         }
+
+        // Right-pad with spaces
+        for(int j = len; j < width; j++)
+          putc(1, pad_char);
+
+        // Output characters
+        for(int j = 0; j < len; j++)
+          putc(1, s[j]);
+
         state = 0;
       } else if(c == 'c'){
-        char ch = *ap++;
-        putc(1, ch);
+        putc(1, *ap++);
         state = 0;
       } else if(c == '%'){
         putc(1, '%');

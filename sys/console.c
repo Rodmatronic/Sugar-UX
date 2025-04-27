@@ -203,9 +203,19 @@ cgaputc(int colour, int c, int tty)
     if(tty == active_terminal)
       active_crt[pos] = (c&0xff) | colour;
     pos++;
+  } else if (c >= 0x00 && c <= 0x1F) {  // Handle remaining control characters
+    // Display as ^ followed by corresponding character
+    term->crt_buffer[pos] = '^' | colour;
+    if(tty == active_terminal)
+      active_crt[pos] = '^' | colour;
+    pos++;
+    char disp_char = (c == 0x00) ? '@' : c + 0x40; // Handle 0x00 as ^@
+    term->crt_buffer[pos] = disp_char | colour;
+    if(tty == active_terminal)
+      active_crt[pos] = disp_char | colour;
+    pos++;
   }
 
-  // Handle screen scrolling
   if((pos/80) >= 25) {
     memmove(term->crt_buffer, term->crt_buffer + 80, sizeof(term->crt_buffer[0])*24*80);
     if(tty == active_terminal)

@@ -25,8 +25,6 @@ int main(int argc, char *argv[]) {
     dup(fd);
     close(fd);
 
-    printf("\nSugar/Unix login (%s)\n(Default user is 'sugar' with blank pass. Root pass is 'root')\n", argv[1]);
-
     // Execute login
     char *login_argv[] = { "login", 0 };
     exec("/bin/login", login_argv);

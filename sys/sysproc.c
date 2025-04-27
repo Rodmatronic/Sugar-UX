@@ -6,10 +6,50 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "file.h"
+#include "stat.h"
 
 // Default hostname
 static char hostname[MAXHOSTNAMELEN] = "sugarux";
 void sys_setcursor(void);
+
+int
+sys_ttyname(void)
+{
+  int fd;
+  char *buf;
+  int buflen;
+  struct file *f;
+
+  // Retrieve fd, buffer pointer, and buffer length
+  if (argint(0, &fd) < 0 || argptr(1, &buf, 1) < 0 || argint(2, &buflen) < 0)
+    return -1;
+
+  struct proc *p = myproc();
+
+  // Validate file descriptor
+  if (fd < 0 || fd >= NOFILE || (f = p->ofile[fd]) == 0)
+    return -1;
+
+  // Check if it's a TTY device
+  if (f->type != FD_INODE || !(f->ip->type == T_DEV && f->ip->major == TTY_MAJOR))
+    return -1;
+
+  int tty_num = f->ip->minor; // Terminal number from minor device number
+
+  // Construct "/dev/ttyX" (e.g., "/dev/tty0")
+  char tty_name[10] = "/dev/tty0"; // Max length 9 + null terminator
+  tty_name[8] = '0' + tty_num; // Replace last character with terminal number
+  tty_name[9] = '\0';
+
+  // Check buffer length
+  if (buflen < strlen(tty_name) + 1)
+    return -1;
+
+  // Copy to user buffer
+  safestrcpy(buf, tty_name, buflen);
+  return 0;
+}
 
 int
 sys_reboot(void)
@@ -132,7 +172,9 @@ sys_clear(void)
   return 0;
 }
 
-int sys_gethostname(void) {
+int
+sys_gethostname(void)
+{
   struct utsname *u;
   char *addr;
 
@@ -146,7 +188,9 @@ int sys_gethostname(void) {
   return 0;
 }
 
-int sys_sethostname(void) {
+int
+sys_sethostname(void)
+{
   char *name;
   int len;
 

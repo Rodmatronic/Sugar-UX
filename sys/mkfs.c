@@ -234,8 +234,10 @@ for (i = 2; i < argc; i++) {
     // Special cases
     if (strcmp(name, "init") == 0) {
         iappend(rootino, &de, sizeof(de));
-    } if (strcmp(name, "README") == 0) {
+    } else if (strcmp(name, "README") == 0) {
         iappend(rootino, &de, sizeof(de));
+    } else if (strcmp(name, "LICENSE") == 0) {
+      iappend(rootino, &de, sizeof(de));
     } else if (strcmp(name, "profile") == 0) {
       iappend(etcino, &de, sizeof(de));
     } else if (strcmp(name, "passwd") == 0) {

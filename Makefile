@@ -217,11 +217,12 @@ ETC_FILES = \
 	$(OUT_DIR)/profile \
 	$(OUT_DIR)/rc
 
-$(OUT_DIR)/fs.img: $(OUT_DIR)/mkfs README $(UPROGS) $(ETC_FILES)
+$(OUT_DIR)/fs.img: $(OUT_DIR)/mkfs README LICENSE $(UPROGS) $(ETC_FILES)
 	@mkdir -p $(@D)
 	cp README $(OUT_DIR)/README
+	cp LICENSE $(OUT_DIR)/LICENSE
 	cd $(OUT_DIR) && \
-	./mkfs fs.img README $(notdir $(UPROGS)) $(notdir $(ETC_FILES))
+	./mkfs fs.img README LICENSE $(notdir $(UPROGS)) $(notdir $(ETC_FILES))
 
 tags: $(OBJS) $(SYS_DIR)/entryother.S $(OUT_DIR)/_init
 	etags $(SYS_DIR)/*.S $(SYS_DIR)/*.c $(USER_DIR)/*.c

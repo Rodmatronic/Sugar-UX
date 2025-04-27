@@ -40,12 +40,18 @@ int main() {
     char user[50], pass[50], line[MAX_LINE];
     int fd, match = 0;
 
+    char tty[128];
+    ttyname(0, tty, 256);  // Get TTY name
+    printf("\nSugar/Unix login (%s)\n\n", tty);
+
+    prompt:
+
     printf("login: ");
     gets(user, sizeof(user));  // Get username
     user[strlen(user)-1] = 0;  // Remove newline
 
     if (strlen(user) == 0) {
-        goto main;  // Retry if empty
+        goto prompt;  // Retry if empty
     }
 
     printf("Password: ");
@@ -143,7 +149,7 @@ int main() {
 
     } else {
         printf("Login incorrect\n");
-        goto main;
+        goto prompt;
     }
 
     goto main;

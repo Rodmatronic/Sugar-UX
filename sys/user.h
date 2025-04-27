@@ -43,6 +43,7 @@ int     strncmp(const char *p, const char *q, int size);
 void	printf(char*, ...);
 void	fprintf(int fd, char*, ...);
 char*	gets(char*, int max);
+int     getc(int fd);
 uint	strlen(char*);
 void*	memset(void*, int, uint);
 void*	malloc(uint);
@@ -54,6 +55,7 @@ int     strspn(const char *s, const char *accept);
 int     snprintf(char *buf, int size, const char *fmt, ...);
 char*   strdup(const char *s);
 int     isdigit(int c);
+long    strtol(const char *nptr, char **endptr, int base);
 
 int	    gettime(struct rtcdate*);
 void	setcursor(void);
@@ -71,5 +73,6 @@ int     listenv(char *buf, int buflen);
 int     halt(void);
 int     reboot(void);
 void    strcat(char *dest, const char *src);
+int     ttyname(int fd, char *buf, int buflen);
 
 #endif

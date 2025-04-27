@@ -36,3 +36,4 @@
 #define SYS_listenv     35
 #define SYS_halt        36
 #define SYS_reboot      37
+#define SYS_ttyname     38
