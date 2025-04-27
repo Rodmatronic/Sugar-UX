@@ -128,7 +128,7 @@ sys_clear(void)
   int i;
   for(i = 0; i < 80*25; i++)
     crt[i] = ' ' | 0x0700;
-  sys_setcursor();
+  ttyclear();
   return 0;
 }
 

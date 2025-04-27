@@ -420,6 +420,15 @@ consoleread_tty(int tty, char *dst, int n)
 }
 
 void
+ttyclear(void)
+{
+  struct proc *p = myproc();
+  int tty = p->tty;
+  memset(terminals[active_terminal].crt_buffer, 0, sizeof(terminals[active_terminal].crt_buffer));
+  terminals[active_terminal].cursor_pos = 0;
+}
+
+void
 consoleinit(void)
 {
   for (int i = 0; i < NTERMINALS; i++) {
