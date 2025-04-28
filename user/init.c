@@ -4,7 +4,10 @@
 #include "../sys/fcntl.h"
 #include "../sys/date.h"
 char *argv[] = { "login", 0 };
+char *shargv[] = { "sh", 0 };
 char *dateargv[] = { "date", "", 0 }; 
+char *mvargv[] = { "mv", "/etc/~passwd", "/etc/passwd", 0 }; 
+
 #define stderr 2
 #define version "1.00"
 #define ttynum  10
@@ -44,6 +47,16 @@ main(void)
   mkdir("/dev");
   mkdir("/var");
 
+  int mvpid = fork();
+  if (mvpid == 0) {
+    exec("/bin/mv", mvargv);
+    exit(EXIT_SUCCESS);
+  } else if (mvpid > 0) {
+    wait();
+  } else {
+    printf("init: fork failed for mv\n");
+  }
+
   // Create TTY devices
   for(int i=0; i<ttynum; i++) {
     char path[20];
@@ -57,6 +70,23 @@ main(void)
   dup(con);  // stderr
 
   printf("INIT: version %s booting\n", version);
+
+  char prompt[8];
+  printf("'s' for single user mode, any other key to continue\n");
+  gets(prompt, sizeof(prompt));
+  if (prompt[0] == 's' || prompt[0] == 'S') {
+    runlevel = 1;
+    printf("Entering runlevel: %d\n", runlevel);
+    int shpid = fork();
+    if (shpid == 0) {
+      exec("/bin/sh", shargv);
+      exit(EXIT_SUCCESS);
+    } else if (shpid > 0) {
+      wait();
+    } else {
+      printf("init: fork failed for sh!\n");
+    }
+  }
 
   // Make device nodes. NOTE: random and urandom are identical.
   mknod("/dev/null", 2, 0);

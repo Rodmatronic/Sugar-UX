@@ -179,6 +179,7 @@ UPROGS = \
 	$(OUT_DIR)/_more \
 	$(OUT_DIR)/_mv \
 	$(OUT_DIR)/_nologin \
+	$(OUT_DIR)/_passwd \
 	$(OUT_DIR)/_pwd \
 	$(OUT_DIR)/_reboot \
 	$(OUT_DIR)/_rm \
@@ -213,7 +214,7 @@ ETC_FILES = \
 	$(OUT_DIR)/groups \
 	$(OUT_DIR)/issue \
 	$(OUT_DIR)/motd \
-	$(OUT_DIR)/passwd \
+	$(OUT_DIR)/~passwd \
 	$(OUT_DIR)/profile \
 	$(OUT_DIR)/rc
 

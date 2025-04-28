@@ -6,7 +6,9 @@
 #define MAX_LINE 256
 #define MAX_FILE 4096
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char *argv[])
+{
     if (getuid() != 0) {
         printf("adduser: must be run as root\n");
         exit(EXIT_FAILURE);

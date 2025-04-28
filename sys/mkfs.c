@@ -174,6 +174,17 @@ main(int argc, char *argv[])
 
   add_dot_entries(usrino, rootino);
 
+  // Add 'bin' entry to usr directory
+  uint usrbinino = ialloc(T_DIR);
+  assert(usrbinino != 0);
+  
+  bzero(&de, sizeof(de));
+  de.inum = xshort(usrbinino);
+  strcpy(de.name, "bin");
+  iappend(usrino, &de, sizeof(de));
+
+  add_dot_entries(usrbinino, usrino);
+
   // Add 'home' entry to root directory
   uint homeino = ialloc(T_DIR);
   assert(homeino != 0);
@@ -240,7 +251,7 @@ for (i = 2; i < argc; i++) {
       iappend(rootino, &de, sizeof(de));
     } else if (strcmp(name, "profile") == 0) {
       iappend(etcino, &de, sizeof(de));
-    } else if (strcmp(name, "passwd") == 0) {
+    } else if (strcmp(name, "~passwd") == 0) {
     iappend(etcino, &de, sizeof(de));
     } else if (strcmp(name, "motd") == 0) {
       iappend(etcino, &de, sizeof(de));
@@ -260,6 +271,8 @@ for (i = 2; i < argc; i++) {
       iappend(sbinino, &de, sizeof(de));
     } else if (strcmp(name, "getty") == 0) {
       iappend(sbinino, &de, sizeof(de));
+    } else if (strcmp(name, "adduser") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
     } else {
         iappend(binino, &de, sizeof(de));
     }
