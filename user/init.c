@@ -22,7 +22,7 @@ int runlevel = 3;
 int
 main(void)
 {
-  int pid, wpid;
+  int pid = 0, wpid = 0;
   if (getpid() != 1) {
     (void)fprintf(stderr, "init: already running\n");
     exit(0);

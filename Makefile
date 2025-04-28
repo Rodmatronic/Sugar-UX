@@ -125,8 +125,7 @@ $(OUT_DIR)/entry.o: $(SYS_DIR)/entry.S
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OUT_DIR)/initcode: $(OUT_DIR)/initcode.o
-	$(LD) $(LDFLAGS) -N -e start -Ttext 0 -o $(OUT_DIR)/initcode.out $<
-	$(OBJCOPY) -S -O binary $(OUT_DIR)/initcode.out $@
+	$(OBJCOPY) -O binary -j .text $< $@
 
 $(OUT_DIR)/initcode.o: $(SYS_DIR)/initcode.S
 	@mkdir -p $(@D)
@@ -155,6 +154,7 @@ $(OUT_DIR)/%.o: $(SYS_DIR)/%.S
 ULIB = $(OUT_DIR)/ulib.o $(OUT_DIR)/usys.o $(OUT_DIR)/printf.o $(OUT_DIR)/umalloc.o
 
 UPROGS = \
+	$(OUT_DIR)/_adduser \
 	$(OUT_DIR)/_basename \
 	$(OUT_DIR)/_cat \
 	$(OUT_DIR)/_cp \

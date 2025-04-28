@@ -56,6 +56,7 @@ int     snprintf(char *buf, int size, const char *fmt, ...);
 char*   strdup(const char *s);
 int     isdigit(int c);
 long    strtol(const char *nptr, char **endptr, int base);
+char*   strncat(char*, const char*, int);
 
 int	    gettime(struct rtcdate*);
 void	setcursor(void);

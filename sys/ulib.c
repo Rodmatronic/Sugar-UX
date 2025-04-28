@@ -4,6 +4,27 @@
 #include "user.h"
 #include "x86.h"
 
+char*
+strncat(char *dest, const char *src, int n)
+{
+  char *orig = dest;
+
+  // Find end of destination
+  while(*dest)
+    dest++;
+
+  // Copy up to n bytes
+  while(n-- > 0 && (*dest = *src)) {
+    dest++;
+    src++;
+  }
+
+  // Always null-terminate
+  *dest = '\0';
+  
+  return orig;
+}
+
 long
 strtol(const char *nptr, char **endptr, int base)
 {
