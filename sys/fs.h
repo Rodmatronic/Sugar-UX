@@ -35,6 +35,8 @@ struct dinode {
   uint uid;             // Owner's UID
 };
 
+#define DDNAME "hd0"
+
 // Inodes per block.
 #define IPB           (BSIZE / sizeof(struct dinode))
 

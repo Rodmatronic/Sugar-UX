@@ -3,5 +3,5 @@ daemon::1:1:System Daemon:/:/sbin/nologin
 sys::2:2:Operating System:/tmp:/sbin/nologin
 operator::5:5:System Operator:/usr/opr:/sbin/nologin
 uucp::6:6:UNIX-to-UNIX Copy:/var/spool/uucppublic:/usr/libexec/uucico
-nobody::32767:32766:Unprivileged user:/nonexistent:/sbin/nologin
+nobody::7:7:Unprivileged user:/nonexistent:/sbin/nologin
 sugar::1000:1000:Default User:/home/sugar:/bin/sh

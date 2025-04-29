@@ -174,6 +174,7 @@ UPROGS = \
 	$(OUT_DIR)/_ln \
 	$(OUT_DIR)/_login \
 	$(OUT_DIR)/_ls \
+	$(OUT_DIR)/_man \
 	$(OUT_DIR)/_mkdir \
 	$(OUT_DIR)/_mknod \
 	$(OUT_DIR)/_more \
@@ -252,7 +253,7 @@ QEMUGDB = $(shell if $(QEMU) -help | grep -q '^-gdb'; \
 ifndef CPUS
 CPUS := 2
 endif
-QEMUOPTS = -accel kvm --no-reboot -drive file=$(OUT_DIR)/fs.img,index=1,media=disk,format=raw -drive file=$(OUT_DIR)/xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m 4 $(QEMUEXTRA)
+QEMUOPTS = -accel tcg --no-reboot -drive file=$(OUT_DIR)/fs.img,index=1,media=disk,format=raw -drive file=$(OUT_DIR)/xv6.img,index=0,media=disk,format=raw -smp $(CPUS) -m 4 $(QEMUEXTRA)
 
 qemu: $(OUT_DIR)/fs.img $(OUT_DIR)/xv6.img
 #	$(QEMU) $(QEMUOPTS)

@@ -232,7 +232,7 @@ iinit(int dev)
  inodestart %d bmap start %d\n", sb.size, sb.nblocks,
           sb.ninodes, sb.nlog, sb.logstart, sb.inodestart,
           sb.bmapstart);
-          kprintf("Root mounted! (ide disk 1)\n");
+          kprintf("boot device: %s\n", DDNAME);
 }
 
 static struct inode* iget(uint dev, uint inum);

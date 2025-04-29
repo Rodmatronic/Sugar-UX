@@ -17,7 +17,7 @@ main(int argc, char *argv[])
     char username[50], fullname[50], password[50], confirm[50];
     char old_content[MAX_FILE];
     int content_len = 0;
-    int max_uid = 999;
+    int new_uid = 0;
 
     printf("Username: ");
     gets(username, sizeof(username));
@@ -38,9 +38,14 @@ main(int argc, char *argv[])
         char *end = strchr(line, '\n');
         if (!end) end = old_content + content_len;
         
-        // Make temporary copy of the line for parsing
-        char line_copy[MAX_LINE];
         int line_len = end - line;
+        // Check line length to prevent overflow
+        if (line_len >= MAX_LINE) {
+            printf("adduser: line too long in /etc/passwd\n");
+            exit(EXIT_FAILURE);
+        }
+
+        char line_copy[MAX_LINE];
         memmove(line_copy, line, line_len);
         line_copy[line_len] = 0;
     
@@ -58,13 +63,10 @@ main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
         
-        int uid = atoi(fields[2]);
-        if (uid > max_uid) max_uid = uid;
-        
+        int uid = atoi(fields[2]);  
+        new_uid = uid + 1;      
         line = end + 1;
     }
-
-    int new_uid = (max_uid >= 1000) ? max_uid + 1 : 1000;
 
     printf("Full name: ");
     gets(fullname, sizeof(fullname));
@@ -124,20 +126,5 @@ main(int argc, char *argv[])
 
     close(pw_fd);
     printf("\nUser %s added successfully!\n", username);
-    
-    // FLUSH INPUT BUFFER BEFORE RESTARTING
-    printf("Would you like to add another user? (y/n): ");
-    char response[2];
-    gets(response, sizeof(response));
-    
-    // Clear any remaining characters in buffer
-    char dump;
-    while(read(0, &dump, 1) > 0 && dump != '\n'); // Flush stdin
-    
-    if (response[0] == 'y' || response[0] == 'Y') {
-        // Restart with clean environment
-        char *new_argv[] = { "adduser", 0 };
-        exec("/bin/adduser", new_argv);
-    }
     exit(EXIT_SUCCESS);
 }
