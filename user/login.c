@@ -36,7 +36,7 @@ char* monthname(int m) {
 }
 
 int main() {
-    main:
+    main:;
     char user[50], pass[50], line[MAX_LINE];
     int fd, match = 0;
 
@@ -44,7 +44,7 @@ int main() {
     ttyname(0, tty, 256);  // Get TTY name
     printf("\nSugar/Unix login (%s)\n\n", tty);
 
-    prompt:
+    prompt:;
 
     printf("login: ");
     gets(user, sizeof(user));  // Get username
