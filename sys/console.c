@@ -449,6 +449,7 @@ consoleinit(void)
     terminals[i].echo = 1;
     terminals[i].color = ucolour;
     memset(terminals[i].crt_buffer, 0, sizeof(terminals[i].crt_buffer));
+    terminals[i].cursor_pos = 0;
   }
 
   devsw[CONSOLE].write = consolewrite;
@@ -456,5 +457,5 @@ consoleinit(void)
   devsw[TTY_MAJOR].write = ttywrite;
   devsw[TTY_MAJOR].read = ttyread;
   ioapicenable(IRQ_KBD, 0);
+  clear();
 }
-

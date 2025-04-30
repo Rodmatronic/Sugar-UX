@@ -279,6 +279,8 @@ for (i = 2; i < argc; i++) {
       iappend(usrbinino, &de, sizeof(de));
     } else if (strcmp(name, "false") == 0) {
       iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "tty") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
     } else {
         iappend(binino, &de, sizeof(de));
     }

@@ -189,6 +189,7 @@ UPROGS = \
 	$(OUT_DIR)/_sh \
 	$(OUT_DIR)/_su \
 	$(OUT_DIR)/_true \
+	$(OUT_DIR)/_tty \
 	$(OUT_DIR)/_uname \
 	$(OUT_DIR)/_uptime \
 	$(OUT_DIR)/_wc \
