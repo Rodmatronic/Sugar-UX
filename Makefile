@@ -159,9 +159,9 @@ UPROGS = \
 	$(OUT_DIR)/_cat \
 	$(OUT_DIR)/_cp \
 	$(OUT_DIR)/_clear \
+	$(OUT_DIR)/_date \
 	$(OUT_DIR)/_echo \
 	$(OUT_DIR)/_env \
-	$(OUT_DIR)/_date \
 	$(OUT_DIR)/_getuid \
 	$(OUT_DIR)/_getty \
 	$(OUT_DIR)/_grep \
@@ -190,6 +190,7 @@ UPROGS = \
 	$(OUT_DIR)/_uname \
 	$(OUT_DIR)/_uptime \
 	$(OUT_DIR)/_wc \
+	$(OUT_DIR)/_whereis \
 	$(OUT_DIR)/_whoami \
 	$(OUT_DIR)/_yes
 

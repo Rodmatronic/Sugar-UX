@@ -273,6 +273,8 @@ for (i = 2; i < argc; i++) {
       iappend(sbinino, &de, sizeof(de));
     } else if (strcmp(name, "adduser") == 0) {
       iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "whereis") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
     } else {
         iappend(binino, &de, sizeof(de));
     }

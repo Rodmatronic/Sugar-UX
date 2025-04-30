@@ -6,6 +6,7 @@
 
 static char printf_buf[PRINTF_BUF_SIZE];
 static int printf_buf_index = 0;
+static void printf_putc(int fd, char c);
 
 static void
 flush(int fd)
@@ -26,8 +27,15 @@ strncpy(char *dest, const char *src, int n)
     dest[i] = '\0';
 }
 
+void
+putc(int c)
+{
+  printf_putc(1, c);
+}
+
+
 static void
-putc(int fd, char c)
+printf_putc(int fd, char c)
 {
   if(printf_buf_index >= PRINTF_BUF_SIZE) {
       flush(fd);
@@ -64,7 +72,7 @@ printint(int fd, int xx, int base, int sgn, int width, char pad_char)
     buf[i++] = pad_char;
 
   while(--i >= 0)
-    putc(fd, buf[i]);
+    printf_putc(fd, buf[i]);
 }
 
 // Minimal snprintf: supports %s, %d, %x, %c, and %%
@@ -166,7 +174,7 @@ printf(char *fmt, ...)
         pad_char = ' ';
         precision = -1;
       } else {
-        putc(1, c);
+        printf_putc(1, c);
       }
     } else if(state == '%'){
       if(c == '0'){
@@ -213,22 +221,22 @@ printf(char *fmt, ...)
 
         // Right-pad with spaces
         for(int j = len; j < width; j++)
-          putc(1, pad_char);
+          printf_putc(1, pad_char);
 
         // Output characters
         for(int j = 0; j < len; j++)
-          putc(1, s[j]);
+          printf_putc(1, s[j]);
 
         state = 0;
       } else if(c == 'c'){
-        putc(1, *ap++);
+        printf_putc(1, *ap++);
         state = 0;
       } else if(c == '%'){
-        putc(1, '%');
+        printf_putc(1, '%');
         state = 0;
       } else {
-        putc(1, '%');
-        putc(1, c);
+        printf_putc(1, '%');
+        printf_putc(1, c);
         state = 0;
       }
     }
@@ -259,7 +267,7 @@ fprintf(int fd, char *fmt, ...)
         width = 0;
         pad_char = ' ';
       } else {
-        putc(fd, c);
+        printf_putc(fd, c);
       }
     } else if(state == '%'){
       if(c == '0'){
@@ -283,21 +291,21 @@ fprintf(int fd, char *fmt, ...)
         int len = 0;
         for (char *t = s; *t; t++) len++;
         for (int j = len; j < width; j++)
-          putc(fd, pad_char);
+          printf_putc(fd, pad_char);
         while(*s != 0){
-          putc(fd, *s++);
+          printf_putc(fd, *s++);
         }
         state = 0;
       } else if(c == 'c'){
         char ch = *ap++;
-        putc(fd, ch);
+        printf_putc(fd, ch);
         state = 0;
       } else if(c == '%'){
-        putc(fd, '%');
+        printf_putc(fd, '%');
         state = 0;
       } else {
-        putc(fd, '%');
-        putc(fd, c);
+        printf_putc(fd, '%');
+        printf_putc(fd, c);
         state = 0;
       }
     }
