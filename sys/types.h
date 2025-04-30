@@ -20,7 +20,9 @@ struct utsname {
 };
 
 #define EOF (-1)
+#ifndef NULL
 #define NULL ((void*)0)
+#endif
 //#define stderr 2
 
 #endif

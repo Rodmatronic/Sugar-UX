@@ -54,7 +54,6 @@ sys_ttyname(void)
 int
 sys_reboot(void)
 {
-  int uid;
   if (myproc()->uid != 0) { // Normally the program running this would check, this is a failsafe
     kprintf("Only root can reset the system!\n");
     return -1;
@@ -71,7 +70,6 @@ sys_reboot(void)
 int
 sys_halt(void)
 {
-  int uid;
   if (myproc()->uid != 0) { // Normally the program running this would check, this is a failsafe
     kprintf("Only root can halt the system!\n");
     return -1;

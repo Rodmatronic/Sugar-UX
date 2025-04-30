@@ -56,7 +56,7 @@ main(int argc, char *argv[])
     }
 
     fd = open(argv[1], O_RDONLY);
-    if (fd == NULL) {
+    if (fd < 0) {
         printf("hexdump: no such file or directory");
         return -1;
     }

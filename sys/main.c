@@ -32,7 +32,6 @@ main(void)
   seginit();       // segment descriptors
   picinit();       // disable pic
   ioapicinit();    // another interrupt controller
-  kernmmodinit();  // kernel module init, since the kernel is brought up enough
   consoleinit();   // console hardware
   //uartinit();    // serial port
   pinit();         // process table
@@ -44,12 +43,6 @@ main(void)
   kinit2(P2V(4*1024*1024), P2V(PHYSTOP)); // must come after startothers()
   userinit();      // first user process
   mpmain();        // finish this processor's setup
-}
-
-int
-kernmmodinit()
-{
-  kprintf("Loading kernel modules...\n");
 }
 
 void

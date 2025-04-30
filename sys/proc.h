@@ -98,8 +98,8 @@ struct terminal {
   int color;
 };
 
-static struct terminal terminals[NTERMINALS];
-static int active_terminal = 0;
+extern struct terminal terminals[NTERMINALS];
+extern int active_terminal;
 
 struct ptable {
   struct spinlock lock;

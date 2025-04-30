@@ -21,6 +21,9 @@ static void cgaputc(int colour, int c, int tty);
 static int echo = 1;
 static int panicked = 0;
 
+struct terminal terminals[NTERMINALS];
+int active_terminal = 0;
+
 #define kcolour 0x8E00
 #define ucolour 0x0700
 

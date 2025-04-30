@@ -1,8 +1,12 @@
 #define T_DIR  1   // Directory
 #define T_FILE 2   // File
 #define T_DEV  3   // Device
+#ifndef S_IFMT
 #define S_IFMT  00170000
-#define S_IFDIR  0040000
+#endif
+#ifndef S_IFDIR
+#define S_IFDIR 0040000
+#endif
 
 struct stat {
   unsigned short st_mode;
