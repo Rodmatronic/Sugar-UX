@@ -46,6 +46,9 @@ main(void)
   // boot-time directories
   mkdir("/dev");
   mkdir("/var");
+  mkdir("/var/log");
+  // var/tmp is NOT removed across reboots. /tmp is.
+  mkdir("/var/tmp");
 
   int mvpid = fork();
   if (mvpid == 0) {
@@ -102,11 +105,6 @@ main(void)
 
   // Do we have hostname?
   if(open("/etc/hostname", O_RDWR) < 0){
-    char *name = "sugar";
-    printf("init: WARNING: hostname not set.\nUsing sane default: %s\n", name);
-    sethostname(name, strlen(name));
-    setenv("HOSTNAME", name, 1);
-  } else {
     char name[64];
     int fd = open("/etc/hostname", O_RDWR);
     if (fd < 0) {

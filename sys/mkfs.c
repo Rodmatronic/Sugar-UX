@@ -281,6 +281,38 @@ for (i = 2; i < argc; i++) {
       iappend(usrbinino, &de, sizeof(de));
     } else if (strcmp(name, "tty") == 0) {
       iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "login") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "env") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "whoami") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "su") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "hexdump") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "grep") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "getuid") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "passwd") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "more") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "head") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "man") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "clear") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "yes") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "basename") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "uname") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "uptime") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
     } else {
         iappend(binino, &de, sizeof(de));
     }

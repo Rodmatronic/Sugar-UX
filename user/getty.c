@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
 
     // Execute login
     char *login_argv[] = { "login", 0 };
-    exec("/bin/login", login_argv);
+    exec("/usr/bin/login", login_argv);
     printf("getty: exec failed\n");
     exit(1);
 }

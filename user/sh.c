@@ -180,6 +180,9 @@ runcmd(struct cmd *cmd)
 int
 getcmd(char *buf, int nbuf)
 {
+  char host[128];
+  getenv("HOSTNAME", host);
+  printf("%s", host);
   if (getuid() == 0) {
     write(1, "# ", 2);
   } else {

@@ -10,7 +10,7 @@
 #include "stat.h"
 
 // Default hostname
-static char hostname[MAXHOSTNAMELEN] = "sugarux";
+static char hostname[MAXHOSTNAMELEN] = "localhost";
 void sys_setcursor(void);
 
 int
@@ -246,7 +246,7 @@ int sys_uname(void) {
   // Copy strings to user space
   safestrcpy(u->sysname, "Sugar/Unix", sizeof(u->sysname));
   safestrcpy(u->nodename, hostname, sizeof(u->nodename));
-  safestrcpy(u->release, "0.14.2-RELEASE", sizeof(u->release));
+  safestrcpy(u->release, "0.15-RELEASE", sizeof(u->release));
   safestrcpy(u->version, "Sugar/Unix (Codename ALFA)", sizeof(u->version));
   safestrcpy(u->machine, "i386", sizeof(u->machine));
 
