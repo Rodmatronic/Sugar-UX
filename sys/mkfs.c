@@ -275,6 +275,10 @@ for (i = 2; i < argc; i++) {
       iappend(usrbinino, &de, sizeof(de));
     } else if (strcmp(name, "whereis") == 0) {
       iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "true") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
+    } else if (strcmp(name, "false") == 0) {
+      iappend(usrbinino, &de, sizeof(de));
     } else {
         iappend(binino, &de, sizeof(de));
     }

@@ -162,6 +162,7 @@ UPROGS = \
 	$(OUT_DIR)/_date \
 	$(OUT_DIR)/_echo \
 	$(OUT_DIR)/_env \
+	$(OUT_DIR)/_false \
 	$(OUT_DIR)/_getuid \
 	$(OUT_DIR)/_getty \
 	$(OUT_DIR)/_grep \
@@ -187,6 +188,7 @@ UPROGS = \
 	$(OUT_DIR)/_rmdir \
 	$(OUT_DIR)/_sh \
 	$(OUT_DIR)/_su \
+	$(OUT_DIR)/_true \
 	$(OUT_DIR)/_uname \
 	$(OUT_DIR)/_uptime \
 	$(OUT_DIR)/_wc \
