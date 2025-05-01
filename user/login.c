@@ -101,14 +101,28 @@ int main() {
         int uid = atoi(fields[2]);
 	      // Print the date
 	      struct rtcdate r;
-	      if (gettime(&r) == 0) {
-	          printf("%02s %02s %02d %02d:%02d:%02d\n",
+          if (strcmp(fields[0], "root") == 0) {
+            if (gettime(&r) == 0) {
+                printf("%02s %02s %02d %02d:%02d:%02d login: ROOT LOGIN (%s) on %s\n",
+                get_weekday(r.year, r.month, r.day),
+                monthname(r.month),
+                r.day,
+                r.hour,
+                r.minute,
+                r.second,
+                fields[0],
+                tty);
+            }
+            } else if (gettime(&r) == 0) {
+	          printf("%02s %02s %02d %02d:%02d:%02d login: %s on %s\n",
 	          get_weekday(r.year, r.month, r.day),
 	          monthname(r.month),
 	          r.day,
 	          r.hour,
 	          r.minute,
-	          r.second);
+	          r.second,
+              fields[0],
+              tty);
 	      }
 	      // Banner
 	      struct utsname name;
