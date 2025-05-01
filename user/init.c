@@ -105,6 +105,11 @@ main(void)
 
   // Do we have hostname?
   if(open("/etc/hostname", O_RDWR) < 0){
+    char *name = "localhost";
+    printf("init: WARNING: hostname not set.\nUsing %s\n", name);
+    sethostname(name, strlen(name));
+    setenv("HOSTNAME", name, 1);
+  } else {
     char name[64];
     int fd = open("/etc/hostname", O_RDWR);
     if (fd < 0) {

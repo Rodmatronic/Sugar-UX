@@ -444,12 +444,24 @@ ttyclear(void)
 void
 consoleinit(void)
 {
+  kprintf("consoleinit: TTY init\n");
   for (int i = 0; i < NTERMINALS; i++) {
     initlock(&terminals[i].input_lock, "console");
     terminals[i].echo = 1;
     terminals[i].color = ucolour;
-    memset(terminals[i].crt_buffer, 0, sizeof(terminals[i].crt_buffer));
-    terminals[i].cursor_pos = 0;
+    if (i == 0) {
+      // Copy current VGA buffer into terminal 0's buffer
+      memmove(terminals[i].crt_buffer, crt, sizeof(terminals[i].crt_buffer));
+      // Read current VGA cursor position
+      outb(CRTPORT, 14);
+      uint pos_high = inb(CRTPORT + 1);
+      outb(CRTPORT, 15);
+      uint pos_low = inb(CRTPORT + 1);
+      terminals[i].cursor_pos = (pos_high << 8) | pos_low;
+    } else {
+      memset(terminals[i].crt_buffer, 0, sizeof(terminals[i].crt_buffer));
+      terminals[i].cursor_pos = 0;
+    }
   }
 
   devsw[CONSOLE].write = consolewrite;
@@ -457,5 +469,4 @@ consoleinit(void)
   devsw[TTY_MAJOR].write = ttywrite;
   devsw[TTY_MAJOR].read = ttyread;
   ioapicenable(IRQ_KBD, 0);
-  clear();
 }
