@@ -121,6 +121,7 @@ extern int sys_listenv(void);
 extern int sys_halt(void);
 extern int sys_reboot(void);
 extern int sys_ttyname(void);
+extern int sys_getcwd(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]        sys_fork,
@@ -161,6 +162,7 @@ static int (*syscalls[])(void) = {
 [SYS_halt]        sys_halt,
 [SYS_reboot]      sys_reboot,
 [SYS_ttyname]     sys_ttyname,
+[SYS_getcwd]      sys_getcwd,
 };
 
 void

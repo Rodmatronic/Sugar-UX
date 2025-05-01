@@ -32,6 +32,7 @@ int  sleep(int);
 int  uptime(void);
 int  bstat(void);
 int  swap(void*);
+char* getcwd(char *buf, int size);
 
 // ulib.c
 int	    stat(char*, struct stat*);

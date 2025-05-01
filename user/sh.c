@@ -211,11 +211,16 @@ cd(char * buf)
   if(ecmd->argv[1] == 0){
     printf("cd: missing argument\n");
   } else {
-    if(chdir(ecmd->argv[1]) < 0){
-      printf("cd: cannot cd to %s\n", ecmd->argv[1]);
-    }
-    // Update PWD environment variable
-    setenv("PWD", ecmd->argv[1], 1);
+      if(chdir(ecmd->argv[1]) < 0){
+          printf("cd: cannot cd to %s\n", ecmd->argv[1]);
+      }else{
+          char cwd[512];
+          if (getcwd(cwd, sizeof(cwd)) < 0) {
+              printf("cd: failed to getcwd\n");
+          }else{
+              setenv("PWD", cwd, 1);
+          }
+      }
   }
   return 0;
 }

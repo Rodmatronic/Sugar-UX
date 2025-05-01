@@ -37,3 +37,4 @@
 #define SYS_halt        36
 #define SYS_reboot      37
 #define SYS_ttyname     38
+#define SYS_getcwd      39

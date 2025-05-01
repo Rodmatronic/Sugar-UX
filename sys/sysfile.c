@@ -21,6 +21,85 @@
 
 extern int numallocblocks;
 
+static int
+get_dir_name(struct inode *parent, struct inode *child, char *name, int size)
+{
+    struct dirent de;
+    for (int off = 0; off < parent->size; off += sizeof(de)) {
+        if (readi(parent, (char*)&de, off, sizeof(de)) != sizeof(de))
+            panic("getcwd: readdir");
+        if (de.inum == child->inum) {
+            strncpy(name, de.name, size);
+            return 0;
+        }
+    }
+    return -1;
+}
+
+int
+sys_getcwd(void)
+{
+  char *buf;
+  int size;
+  struct inode *cwd, *parent;
+  char path[512], component[DIRSIZ+1];
+  struct proc *proc = myproc();
+  int path_len = 0;
+
+  if (argptr(0, (void*)&buf, 1) < 0 || argint(1, &size) < 0)
+      return -1;
+
+  // Start from current directory
+  cwd = proc->cwd;
+  ilock(cwd);
+
+  // Traverse up to root
+  while (cwd->inum != ROOTINO) {
+      parent = dirlookup(cwd, "..", 0);
+      if (!parent) {
+          iunlock(cwd);
+          return -1;
+      }
+      ilock(parent);
+
+      // Get current directory's name in its parent
+      if (get_dir_name(parent, cwd, component, sizeof(component))) {
+          iunlock(parent); // Unlock parent on failure
+          iunlock(cwd);
+          return -1;
+      }
+
+      int comp_len = strlen(component);
+      if (path_len + comp_len + 2 > sizeof(path)) { // +2 for '/' and null term
+          iunlock(parent);
+          iunlock(cwd);
+          return -1;
+      }
+      memmove(path + comp_len + 1, path, path_len);
+      memmove(path, "/", 1);
+      memmove(path + 1, component, comp_len);
+      path_len += comp_len + 1;
+
+      iunlock(cwd);
+      cwd = parent; // Parent is now the new cwd (still locked)
+  }
+
+  // Handle root case
+  if (path_len == 0) {
+      strncpy(path, "/", sizeof(path));
+      path_len = 1;
+  }
+
+  iunlock(cwd); // Unlock root or final directory
+
+  // Copy result to user buffer
+  if (path_len + 1 > size)
+      return -1;
+  if (copyout(proc->pgdir, (uint)buf, path, path_len + 1) < 0)
+      return -1;
+  return 0;
+}
+
 // Return the address of the PTE in page table pgdir
 // that corresponds to virtual address va.  If alloc!=0,
 // create any required page table pages.
