@@ -187,10 +187,12 @@ getcmd(char *buf, int nbuf)
   char dir[512];
   char host[128];
   char user[128];
+  char ps1[512];
   getenv("USER", user);
   getenv("HOSTNAME", host);
   getenv("PWD", dir);
-  printf("%s:%s ", host,dir);
+  getenv("PS1", ps1);
+  printf(ps1, host, dir, user);
   if (getuid() == 0) {
     write(1, "# ", 2);
   } else {
