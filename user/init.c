@@ -35,6 +35,8 @@ main(void)
   setenv("HOME", "/", 1);
   // Default PATH
   setenv("PATH", "/bin:/usr/bin:/sbin", 1);
+  // Default PS1
+  setenv("PS1", "%s:%s ", 1);
   // PWD initially
   setenv("PWD", "/", 1);
   // vt100 is a safe bet

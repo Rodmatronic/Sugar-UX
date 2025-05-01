@@ -184,9 +184,15 @@ runcmd(struct cmd *cmd)
 int
 getcmd(char *buf, int nbuf)
 {
+  char dir[512];
   char host[128];
+  char user[128];
+  char ps1[512];
+  getenv("USER", user);
   getenv("HOSTNAME", host);
-  printf("%s", host);
+  getenv("PWD", dir);
+  getenv("PS1", ps1);
+  printf(ps1, host, dir, user);
   if (getuid() == 0) {
     write(1, "# ", 2);
   } else {
