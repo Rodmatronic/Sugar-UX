@@ -4,6 +4,12 @@ Thank you very much for checking out Sugar/Unix. Sugar/Unix is a Unix-Like Opera
 # How can I build/test Sugar/Unix?
 To build and test with the QEMU PC emulator, run the following:
 `make qemu`
+
+Please note that depending on your system's toolchain, it might not compile properly, especially if its target contains `pc` (for example `x86_64-pc-linux-gnu`)
+It's recommended you use `i386-jos-elf`, gcc 12, and binutils 2.40.
+
+To build with a diffferent toolchain, use: `TOOLCHAIN=i386-jos-elf- make qemu`
+
 The default user is 'sugar', with no password. Root has the password 'root', but we encourage you to use the SU utility instead of logging in as root. Please note that Sugar/Unix is currently hit-or-miss on real hardware.
 
 # How can I contribute?
