@@ -18,7 +18,7 @@
 
 static void consputc(int c, int colour, int tty);
 static void cgaputc(int colour, int c, int tty);
-static int echo = 1;
+int echo = 1;
 static int panicked = 0;
 
 struct terminal terminals[NTERMINALS];
@@ -68,7 +68,7 @@ printint(int xx, int base, int sign)
   if(sign)
     buf[i++] = '-';
 
-    while(--i >= 0)
+  while(--i >= 0)
     consputc(buf[i], kcolour, 0); // Hardcode to TTY0
 }
 //PAGEBREAK: 50
@@ -436,7 +436,6 @@ void
 ttyclear(void)
 {
   struct proc *p = myproc();
-  int tty = p->tty;
   memset(terminals[active_terminal].crt_buffer, 0, sizeof(terminals[active_terminal].crt_buffer));
   terminals[active_terminal].cursor_pos = 0;
 }

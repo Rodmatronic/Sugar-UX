@@ -133,6 +133,7 @@ runcmd(struct cmd *cmd)
       while (read(fd, buf, sizeof(buf)) > 0) {} // Read until EOF
     }
     runcmd(rcmd->cmd);
+    return;
     break;
   }
 
@@ -142,6 +143,7 @@ runcmd(struct cmd *cmd)
       runcmd(lcmd->left);
     wait();
     runcmd(lcmd->right);
+    return;
     break;
 
   case PIPE:
@@ -166,12 +168,14 @@ runcmd(struct cmd *cmd)
     close(p[1]);
     wait();
     wait();
+    return;
     break;
 
   case BACK:
     bcmd = (struct backcmd*)cmd;
     if(fork1() == 0)
       runcmd(bcmd->cmd);
+    return;
     break;
   }
   exit(EXIT_SUCCESS);

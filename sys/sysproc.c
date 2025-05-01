@@ -120,7 +120,10 @@ sys_getenv(void)
       return 0;
     }
   }
-  return -1;
+
+  // Variable not found: Clear the output buffer to avoid returning junk
+  safestrcpy(value, "", MAX_ENV_VALUE);
+  return 0;
 }
 
 static int
