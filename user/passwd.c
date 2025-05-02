@@ -10,6 +10,7 @@ int
 main(int argc, char *argv[])
 {
     char *target_user;
+    int is_self = 0;
 
     if (argc == 1) {
         // No arguments: change current user's password
@@ -19,15 +20,16 @@ main(int argc, char *argv[])
             exit(EXIT_FAILURE);
         }
         target_user = user;
+        is_self = 1;
     } else if (argc == 2) {
-        // passwd [username]: must be root
+        // passwd <username>: must be root
         if (getuid() != 0) {
             printf("passwd: Operation not permitted\n");
             exit(EXIT_FAILURE);
         }
         target_user = argv[1];
     } else {
-        fprintf(2, "Usage: passwd [USER]\n");
+        fprintf(2, "Usage: passwd [username]\n");
         exit(EXIT_FAILURE);
     }
 
