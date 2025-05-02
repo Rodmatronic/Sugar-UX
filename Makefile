@@ -45,8 +45,8 @@ all: $(OUT_DIR)/xv6.img
 
 # Try to infer the correct TOOLPREFIX if not set
 ifndef TOOLPREFIX
-TOOLPREFIX := $(shell if i386-jos-elf-objdump -i 2>&1 | grep '^elf32-i386$$' >/dev/null 2>&1; \
-	then echo 'i386-jos-elf-'; \
+TOOLPREFIX := $(shell if i386-elf-objdump -i 2>&1 | grep '^elf32-i386$$' >/dev/null 2>&1; \
+	then echo 'i386-elf-'; \
 	elif objdump -i 2>&1 | grep 'elf32-i386' >/dev/null 2>&1; \
 	then echo ''; \
 	else echo "***" 1>&2; \
