@@ -4,5 +4,5 @@
 int
 main(void)
 {
-    exit(1);
+    exit(EXIT_FAILURE);
 }

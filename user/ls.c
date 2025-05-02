@@ -5,54 +5,9 @@
 
 #define MAX_ENTRIES 512
 
-// Natural order string comparison: compares numbers numerically
-int
-natcmp(const char *a, const char *b)
+void
+ls(char *path)
 {
-    while (*a && *b) {
-        if (isdigit(*a) && isdigit(*b)) {
-            // Compare numbers as integers
-            int ai = 0, bi = 0;
-            while (isdigit(*a)) {
-                ai = ai * 10 + (*a - '0');
-                a++;
-            }
-            while (isdigit(*b)) {
-                bi = bi * 10 + (*b - '0');
-                b++;
-            }
-            if (ai != bi)
-                return ai - bi;
-        } else {
-            if (*a != *b)
-                return *a - *b;
-            a++;
-            b++;
-        }
-    }
-    return *a - *b;
-}
-
-char*
-fmtname(char *path) {
-    static char buf[DIRSIZ+1];
-    char *p;
-
-    // Find first character after last slash.
-    for(p = path + strlen(path); p >= path && *p != '/'; p--)
-        ;
-    p++;
-
-    // Return name without padding
-    int len = strlen(p);
-    if (len >= DIRSIZ)
-        len = DIRSIZ;
-    memmove(buf, p, len);
-    buf[len] = '\0';
-    return buf;
-}
-
-void ls(char *path) {
     char buf[512], *p;
     int fd;
     struct dirent de;
@@ -157,7 +112,9 @@ void ls(char *path) {
     close(fd);
 }
 
-int main(int argc, char *argv[]) {
+int
+main(int argc, char *argv[])
+{
     int i;
 
     if(argc < 2){

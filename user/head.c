@@ -29,7 +29,7 @@ main(int argc, char *argv[])
   } else {
     int fd = open(argv[1], O_RDONLY);
     if (fd < 0) {
-      write(2, "Cannot open file\n", 17);
+      fprintf(2, "%s: no such file or directory\n", argv[1]);
       exit(EXIT_FAILURE);
     }
     head(fd);

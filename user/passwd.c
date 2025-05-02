@@ -9,31 +9,42 @@
 int
 main(int argc, char *argv[])
 {
-    if (getuid() != 0) {
-        printf("passwd: Operation not permitted\n");
+    char *target_user;
+
+    if (argc == 1) {
+        // No arguments: change current user's password
+        static char user[32];
+        if (getenv("USER", user) < 0 || user[0] == 0) {
+            fprintf(2, "passwd: cannot determine current user\n");
+            exit(EXIT_FAILURE);
+        }
+        target_user = user;
+    } else if (argc == 2) {
+        // passwd [username]: must be root
+        if (getuid() != 0) {
+            printf("passwd: Operation not permitted\n");
+            exit(EXIT_FAILURE);
+        }
+        target_user = argv[1];
+    } else {
+        fprintf(2, "Usage: passwd [USER]\n");
         exit(EXIT_FAILURE);
     }
 
-    if (argc != 2) {
-        printf("Usage: passwd username\n");
-        exit(EXIT_FAILURE);
-    }
-
-    char *target_user = argv[1];
     char old_content[MAX_FILE];
     int content_len = 0;
 
     // Read existing passwd content
     int fd = open("/etc/passwd", O_RDONLY);
     if (fd < 0) {
-        printf("passwd: cannot open /etc/passwd\n");
+        fprintf(2, "passwd: cannot open /etc/passwd\n");
         exit(EXIT_FAILURE);
     }
 
     content_len = read(fd, old_content, sizeof(old_content) - 1);
     close(fd);
     if (content_len < 0) {
-        printf("passwd: read error\n");
+        fprintf(2, "passwd: read error\n");
         exit(EXIT_FAILURE);
     }
     old_content[content_len] = '\0';
@@ -65,6 +76,8 @@ main(int argc, char *argv[])
             user_found = 1;
             char password[50], confirm[50];
 
+            passwd:;
+
             // Disable echo for password input
             echo(0);
             printf("New password: ");
@@ -74,10 +87,11 @@ main(int argc, char *argv[])
             gets(confirm, sizeof(confirm));
             confirm[strlen(confirm)-1] = 0;
             echo(1);
+            printf("\n");
 
             if (strcmp(password, confirm) != 0) {
-                printf("Passwords don't match!\n");
-                exit(EXIT_FAILURE);
+                fprintf(2, "Passwords don't match!\n");
+                goto passwd;
             }
 
             // Rebuild the line with new password
@@ -86,13 +100,13 @@ main(int argc, char *argv[])
                              fields[0], password, fields[2], fields[3],
                              fields[4], fields[5], fields[6]);
             if (n >= sizeof(new_line)) {
-                printf("passwd: line too long\n");
+                fprintf(2, "passwd: line too long\n");
                 exit(EXIT_FAILURE);
             }
 
             // Append to new_content
             if (new_len + n > MAX_FILE) {
-                printf("passwd: file too large\n");
+                fprintf(2, "passwd: file too large\n");
                 exit(EXIT_FAILURE);
             }
             memmove(new_content + new_len, new_line, n);
@@ -100,7 +114,7 @@ main(int argc, char *argv[])
         } else {
             // Copy original line to new_content with newline
             if (new_len + line_len + 1 > MAX_FILE) {
-                printf("passwd: file too large\n");
+                fprintf(2, "passwd: file too large\n");
                 exit(EXIT_FAILURE);
             }
             memmove(new_content + new_len, line, line_len);
@@ -112,19 +126,19 @@ main(int argc, char *argv[])
     }
 
     if (!user_found) {
-        printf("passwd: user '%s' does not exist\n", target_user);
+        fprintf(2, "passwd: user '%s' does not exist\n", target_user);
         exit(EXIT_FAILURE);
     }
 
     // Write new_content back to /etc/passwd
     fd = open("/etc/passwd", O_WRONLY);
     if (fd < 0) {
-        printf("passwd: failed to open passwd for writing\n");
+        fprintf(2, "passwd: failed to open passwd for writing\n");
         exit(EXIT_FAILURE);
     }
 
     if (write(fd, new_content, new_len) != new_len) {
-        printf("passwd: write error\n");
+        fprintf(2, "passwd: write error\n");
         close(fd);
         exit(EXIT_FAILURE);
     }

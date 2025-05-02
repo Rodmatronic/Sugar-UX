@@ -205,6 +205,10 @@ printf(char *fmt, ...)
         printint(1, *ap, 16, 0, width, pad_char);
         ap++;
         state = 0;
+      } else if(c == 'o'){
+        printint(1, *ap, 8, 0, width, pad_char);
+        ap++;
+        state = 0;
       } else if(c == 's'){
         s = (char*)*ap;
         ap++;
@@ -281,6 +285,10 @@ fprintf(int fd, char *fmt, ...)
         state = 0;
       } else if(c == 'x' || c == 'p'){
         printint(fd, *ap, 16, 0, width, pad_char);
+        ap++;
+        state = 0;
+      } else if(c == 'o'){
+        printint(1, *ap, 8, 0, width, pad_char);
         ap++;
         state = 0;
       } else if(c == 's'){

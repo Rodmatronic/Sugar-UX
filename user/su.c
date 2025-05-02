@@ -63,12 +63,9 @@ int main() {
   if (match) {
     setenv("HOME", fields[5], 1);
     int uid = atoi(fields[2]);
-    if (setuid(uid) < 0) {
-      //fprintf(2, "su: permission denied\n");
-      //exit();
-    }
-    char *argv[] = { "sh", 0 };
-    exec("/bin/sh", argv);
+    if (setuid(uid) < 0) {}
+    char *argv[] = { fields[6], 0 };
+    exec(fields[6], argv);
     fprintf(2, "su: exec failed\n");
   } else {
     fprintf(2, "su: sorry\n");

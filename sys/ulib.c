@@ -4,6 +4,95 @@
 #include "user.h"
 #include "x86.h"
 
+// Natural order string comparison: compares numbers numerically
+int
+natcmp(const char *a, const char *b)
+{
+    while (*a && *b) {
+        if (isdigit(*a) && isdigit(*b)) {
+            // Compare numbers as integers
+            int ai = 0, bi = 0;
+            while (isdigit(*a)) {
+                ai = ai * 10 + (*a - '0');
+                a++;
+            }
+            while (isdigit(*b)) {
+                bi = bi * 10 + (*b - '0');
+                b++;
+            }
+            if (ai != bi)
+                return ai - bi;
+        } else {
+            if (*a != *b)
+                return *a - *b;
+            a++;
+            b++;
+        }
+    }
+    return *a - *b;
+}
+
+char*
+fmtname(char *path)
+{
+    static char buf[14+1];
+    char *p;
+
+    // Find first character after last slash.
+    for(p = path + strlen(path); p >= path && *p != '/'; p--)
+        ;
+    p++;
+
+    // Return name without padding
+    int len = strlen(p);
+    if (len >= 14)
+        len = 14;
+    memmove(buf, p, len);
+    buf[len] = '\0';
+    return buf;
+}
+
+// Use Zeller's Congruence to get weekday name
+char*
+get_weekday(int y, int m, int d)
+{
+  static char* days[] = {
+    "Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"
+  };
+
+  if (m < 3) {
+    m += 12;
+    y -= 1;
+  }
+
+  int h = (d + 2*m + 3*(m+1)/5 + y + y/4 - y/100 + y/400) % 7;
+  return days[h];
+}
+
+// Convert month number to name
+char*
+monthname(int m)
+{
+  static char* months[] = {
+    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+  };
+
+  if (m < 1 || m > 12)
+    return "???";
+
+  return months[m - 1];
+}
+
+char*
+basename(char *path)
+{
+  char *p = path + strlen(path);
+  while(p > path && *(p-1) != '/')
+    p--;
+  return p;
+}
+
 char*
 strncat(char *dest, const char *src, int n)
 {

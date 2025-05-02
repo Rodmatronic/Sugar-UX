@@ -10,8 +10,8 @@ int
 main(int argc, char *argv[])
 {
   if (argc < 2) {
-    printf("What manual page do you want?\n");
-    exit(1);
+    fprintf(2, "What manual page do you want?\n");
+    exit(EXIT_FAILURE);
   }
 
   char path[128];
@@ -19,12 +19,12 @@ main(int argc, char *argv[])
 
   struct stat st;
   if (stat(path, &st) < 0) {
-    printf("No manual entry for %s\n", argv[1]);
-    exit(1);
+    fprintf(2, "No manual entry for %s\n", argv[1]);
+    exit(EXIT_FAILURE);
   }
 
   char *margv[] = { "more", path, 0 };
   exec("/bin/more", margv);
   printf("exec more failed\n");
-  exit(1);
+  exit(EXIT_SUCCESS);
 }

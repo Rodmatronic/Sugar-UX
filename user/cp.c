@@ -5,16 +5,6 @@
 
 #define BUFFER_SIZE 512
 
-// Get filename from path
-char*
-basename(char *path)
-{
-  char *p = path + strlen(path);
-  while(p > path && *(p-1) != '/')
-    p--;
-  return p;
-}
-
 int
 copy_file(char *src, char *dst)
 {
@@ -27,7 +17,7 @@ copy_file(char *src, char *dst)
   int i, j;
 
   if ((fd_src = open(src, 0)) < 0) {
-    printf("cp: cannot open '%s'\n", src);
+    fprintf(2, "cp: cannot open '%s'\n", src);
     return -1;
   }
 
@@ -64,14 +54,14 @@ copy_file(char *src, char *dst)
   }
 
   if ((fd_dst = open(dst, O_CREATE | O_WRONLY)) < 0) {
-    printf("cp: cannot create '%s'\n", dst);
+    fprintf(2, "cp: cannot create '%s'\n", dst);
     close(fd_src);
     return -1;
   }
 
   while ((n = read(fd_src, buf, BUFFER_SIZE)) > 0) {
     if (write(fd_dst, buf, n) != n) {
-      printf("cp: write error copying '%s'\n", src);
+      fprintf(2, "cp: write error copying '%s'\n", src);
       close(fd_src);
       close(fd_dst);
       return -1;
@@ -89,19 +79,19 @@ main(int argc, char *argv[])
   struct stat st;
 
   if (argc != 3) {
-    printf("Usage: cp source_file destination\n");
+    fprintf(2, "Usage: cp source_file destination\n");
     exit(EXIT_FAILURE);
   }
 
   // Check if source exists
   if (stat(argv[1], &st) < 0) {
-    printf("cp: cannot stat '%s': No such file or directory\n", argv[1]);
+    fprintf(2, "cp: cannot stat '%s': No such file or directory\n", argv[1]);
     exit(EXIT_FAILURE);
   }
 
   // Check if source is a regular file
   if ((st.type & T_FILE) == 0) {
-    printf("cp: '%s' is not a regular file\n", argv[1]);
+    fprintf(2, "cp: '%s' is not a regular file\n", argv[1]);
     exit(EXIT_FAILURE);
   }
 

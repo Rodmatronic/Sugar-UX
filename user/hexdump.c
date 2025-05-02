@@ -51,14 +51,14 @@ main(int argc, char *argv[])
 {
     int fd;
     if (argc != 2) {
-        printf("Usage: %s file\n", argv[0]);
-        return -1;
+        fprintf(2, "Usage: %s file\n", argv[0]);
+        return 1;
     }
 
     fd = open(argv[1], O_RDONLY);
     if (fd < 0) {
-        printf("hexdump: no such file or directory");
-        return -1;
+        fprintf(2, "%s: no such file or directory\n", argv[1]);
+        return 1;
     }
 
     hexdump(fd);

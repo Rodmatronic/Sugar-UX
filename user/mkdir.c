@@ -8,7 +8,7 @@ main(int argc, char *argv[])
   int i;
 
   if(argc < 2){
-    printf("Usage: mkdir files...\n");
+    fprintf(2, "Usage: mkdir files...\n");
     exit(EXIT_FAILURE);
   }
 

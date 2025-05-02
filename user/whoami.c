@@ -4,7 +4,8 @@
 
 #define MAX_LINE 256
 
-int main()
+int
+main()
 {
   int uid = getuid();
   int fd;
