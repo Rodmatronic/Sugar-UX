@@ -59,6 +59,13 @@ TOOLPREFIX := $(shell if i386-jos-elf-objdump -i 2>&1 | grep '^elf32-i386$$' >/d
 	echo "***" 1>&2; exit 1; fi)
 endif
 
+IS_LINUX_TOOLCHAIN := $(shell if $(TOOLPREFIX)gcc -dM -E - < /dev/null | grep -q __linux__; then echo yes; else echo no; fi)
+
+ifeq ($(IS_LINUX_TOOLCHAIN),yes)
+$(error your toolchain is targeting linux, which will likely cause issues. please install a toolchain that doesn't have linux in it and set TOOLPREFIX to it)
+endif
+
+
 # If the makefile can't find QEMU, specify its path here
 # QEMU = qemu-system-i386
 
@@ -85,7 +92,7 @@ AS = $(TOOLPREFIX)gas
 LD = $(TOOLPREFIX)ld
 OBJCOPY = $(TOOLPREFIX)objcopy
 OBJDUMP = $(TOOLPREFIX)objdump
-CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -O2 -Wall -MD -ggdb -m32  -fno-omit-frame-pointer -Wimplicit-int
+CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -Wall -MD -ggdb -m32 -O2 -fno-omit-frame-pointer -Wimplicit-int
 #CFLAGS = -fno-pic -static -fno-builtin -fno-strict-aliasing -fvar-tracking -fvar-tracking-assignments -O0 -g -Wall -MD -gdwarf-2 -m32 -Werror -fno-omit-frame-pointer
 CFLAGS += $(shell $(CC) -fno-stack-protector -E -x c /dev/null >/dev/null 2>&1 && echo -fno-stack-protector)
 ASFLAGS = -m32 -gdwarf-2 -Wa,-divide
