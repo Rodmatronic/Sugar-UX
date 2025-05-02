@@ -59,6 +59,11 @@ char*   strdup(const char *s);
 int     isdigit(int c);
 long    strtol(const char *nptr, char **endptr, int base);
 char*   strncat(char*, const char*, int);
+char*   basename(char *path);
+char*   get_weekday(int y, int m, int d);
+char*   monthname(int m);
+int     natcmp(const char *a, const char *b);
+char*   fmtname(char *path);
 
 int	    gettime(struct rtcdate*);
 void	setcursor(void);

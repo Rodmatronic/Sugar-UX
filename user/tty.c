@@ -2,7 +2,9 @@
 #include "../sys/stat.h"
 #include "../sys/user.h"
 
-int main() {
+int
+main()
+{
     char tty[128];
     ttyname(0, tty, 256);  // Get TTY name
     printf("%s\n", tty);

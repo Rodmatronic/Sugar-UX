@@ -8,12 +8,11 @@
  *
  */
 
-
 int
 main(void)
 {
   if(getuid()) {
-    printf("halt: Operation not permitted\n");
+    fprintf(2, "halt: Operation not permitted\n");
     return 1;
   }
   char user[128];
@@ -22,5 +21,5 @@ main(void)
   getenv("HOSTNAME", hostname);
   printf("%s halt: Halted by %s\n", hostname, user);
   halt();
-  return 0;
+  return 1;
 }

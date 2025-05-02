@@ -10,7 +10,7 @@ int
 main(int argc, char *argv[])
 {
     if (getuid() != 0) {
-        printf("adduser: must be run as root\n");
+        fprintf(2, "adduser: must be run as root\n");
         exit(EXIT_FAILURE);
     }
 
@@ -19,9 +19,16 @@ main(int argc, char *argv[])
     int content_len = 0;
     int new_uid = 0;
 
+    username:;
+
     printf("Username: ");
     gets(username, sizeof(username));
     username[strlen(username)-1] = 0;
+
+    if (strlen(username) == 0) {
+        fprintf(2, "adduser: ERROR: You must enter a username!\n");
+        goto username;
+    }
 
     // Read existing passwd content
     int fd = open("/etc/passwd", O_RDONLY);
@@ -41,7 +48,7 @@ main(int argc, char *argv[])
         int line_len = end - line;
         // Check line length to prevent overflow
         if (line_len >= MAX_LINE) {
-            printf("adduser: line too long in /etc/passwd\n");
+            fprintf(2, "adduser: line too long in /etc/passwd\n");
             exit(EXIT_FAILURE);
         }
 
@@ -59,8 +66,8 @@ main(int argc, char *argv[])
         }
     
         if (strcmp(fields[0], username) == 0) {
-            printf("User %s exists!\n", username);
-            exit(EXIT_FAILURE);
+            fprintf(2, "adduser: ERROR: User '%s' exists!\n", username);
+            goto username;
         }
         
         int uid = atoi(fields[2]);  
@@ -72,26 +79,27 @@ main(int argc, char *argv[])
     gets(fullname, sizeof(fullname));
     fullname[strlen(fullname)-1] = 0;
 
+    passwd:;
     // Get password with confirmation
     echo(0);
-    printf("Password: ");
+    printf("Enter password: ");
     gets(password, sizeof(password));
     password[strlen(password)-1] = 0;
-    printf("\nConfirm: ");
+    printf("\nEnter password again: ");
     gets(confirm, sizeof(confirm));
     confirm[strlen(confirm)-1] = 0;
     echo(1);
 
     if (strcmp(password, confirm) != 0) {
-        printf("Passwords don't match!\n");
-        exit(EXIT_FAILURE);
+        fprintf(2, "\nPasswords did not match!\n");
+        goto passwd;
     }
 
     // Create home directory
     char home_dir[MAX_LINE];
     snprintf(home_dir, sizeof(home_dir), "/home/%s", username);
     if (mkdir(home_dir) < 0) {
-        printf("Failed to create %s\n", home_dir);
+        fprintf(2, "Failed to create %s\n", home_dir);
         exit(EXIT_FAILURE);
     }
 
@@ -104,14 +112,14 @@ main(int argc, char *argv[])
     // Write back old content + new entry
     int pw_fd = open("/etc/passwd", O_WRONLY | O_CREAT);
     if (pw_fd < 0) {
-        printf("Can't write passwd\n");
+        fprintf(2, "Can't write passwd\n");
         exit(EXIT_FAILURE);
     }
 
     // Write original content
     if (content_len > 0) {
         if (write(pw_fd, old_content, content_len) != content_len) {
-            printf("Write failed\n");
+            fprintf(2, "Write failed\n");
             close(pw_fd);
             exit(EXIT_FAILURE);
         }
@@ -119,7 +127,7 @@ main(int argc, char *argv[])
 
     // Append new entry
     if (write(pw_fd, new_entry, entry_len) != entry_len) {
-        printf("Write failed\n");
+        fprintf(2, "Write failed\n");
         close(pw_fd);
         exit(EXIT_FAILURE);
     }

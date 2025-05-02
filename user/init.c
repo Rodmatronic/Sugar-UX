@@ -69,6 +69,15 @@ main(void)
     mknod(path, 6, i);
   }
 
+  // Make device nodes. NOTE: random and urandom are identical.
+  mknod("/dev/null", 2, 0);
+  mknod("/dev/kmem", 3, 0);
+  mknod("/dev/zero", 4, 0);
+  mknod("/dev/random", 5, 0);
+  mknod("/dev/tty", 6, 255);
+  link("/dev/random", "/dev/urandom");
+  mkdir("/root");
+
   // Open console
   int con = open("/dev/tty0", O_RDWR);
   dup(con);  // stdout
@@ -79,7 +88,11 @@ main(void)
   char prompt[8];
   printf("'s' for single user mode, any other key to continue\n");
   gets(prompt, sizeof(prompt));
-  if (prompt[0] == 's' || prompt[0] == 'S') {
+  // Remove trailing newline if present
+  int len = strlen(prompt);
+  if (len > 0 && prompt[len-1] == '\n')
+    prompt[len-1] = 0;
+  if (strcmp(prompt, "s") == 0 || strcmp(prompt, "S") == 0) {
     runlevel = 1;
     printf("Entering runlevel: %d\n", runlevel);
     int shpid = fork();
@@ -93,15 +106,6 @@ main(void)
     }
   }
 
-  // Make device nodes. NOTE: random and urandom are identical.
-  mknod("/dev/null", 2, 0);
-  mknod("/dev/kmem", 3, 0);
-  mknod("/dev/zero", 4, 0);
-  mknod("/dev/random", 5, 0);
-  mknod("/dev/tty", 6, 255);
-  link("/dev/random", "/dev/urandom");
-
-  mkdir("/root");
   printf("clearing /tmp\n");
   unlink("/tmp"); mkdir("/tmp");
 

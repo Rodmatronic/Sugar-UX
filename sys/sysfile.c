@@ -49,6 +49,9 @@ sys_getcwd(void)
   if (argptr(0, (void*)&buf, 1) < 0 || argint(1, &size) < 0)
       return -1;
 
+  // Initialize path buffer with null terminator
+  memset(path, 0, sizeof(path));
+
   // Start from current directory
   cwd = proc->cwd;
   ilock(cwd);
@@ -63,11 +66,14 @@ sys_getcwd(void)
       ilock(parent);
 
       // Get current directory's name in its parent
-      if (get_dir_name(parent, cwd, component, sizeof(component))) {
+      if (get_dir_name(parent, cwd, component, sizeof(component)) < 0) {
           iunlock(parent); // Unlock parent on failure
           iunlock(cwd);
           return -1;
       }
+
+      // Null-terminated (DIRSIZ may not include \0)
+      component[DIRSIZ] = '\0';
 
       int comp_len = strlen(component);
       if (path_len + comp_len + 2 > sizeof(path)) { // +2 for '/' and null term
@@ -75,10 +81,11 @@ sys_getcwd(void)
           iunlock(cwd);
           return -1;
       }
-      memmove(path + comp_len + 1, path, path_len);
-      memmove(path, "/", 1);
-      memmove(path + 1, component, comp_len);
+      memmove(path + comp_len + 1, path, path_len + 1);
+      path[0] = '/';
+      strncpy(path + 1, component, comp_len);
       path_len += comp_len + 1;
+      path[path_len] = '\0';
 
       iunlock(cwd);
       cwd = parent; // Parent is now the new cwd (still locked)
@@ -91,6 +98,9 @@ sys_getcwd(void)
   }
 
   iunlock(cwd); // Unlock root or final directory
+
+  // Null termination (redundant but safe)
+  path[path_len] = '\0';
 
   // Copy result to user buffer
   if (path_len + 1 > size)

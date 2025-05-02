@@ -14,20 +14,20 @@ rmrf(char *path)
 
     // Check if path exists
     if (stat(path, &st) < 0) {
-        printf("rm: cannot access '%s'\n", path);
+        fprintf(2, "rm: cannot access '%s'\n", path);
         return;
     }
 
     // If not a directory, just unlink
     if (st.type != T_DIR) {
         if (unlink(path) < 0)
-            printf("rm: failed to delete '%s'\n", path);
+            fprintf(2, "rm: failed to delete '%s'\n", path);
         return;
     }
 
     // Open directory
     if ((fd = open(path, O_RDONLY)) < 0) {
-        printf("rm: cannot open '%s'\n", path);
+        fprintf(2, "rm: cannot open '%s'\n", path);
         return;
     }
 
@@ -50,7 +50,7 @@ rmrf(char *path)
 
     // Remove empty directory
     if (unlink(path) < 0)
-        printf("rm: failed to remove '%s'\n", path);
+        fprintf(2, "rm: failed to remove '%s'\n", path);
 }
 
 int
@@ -63,7 +63,7 @@ main(int argc, char *argv[])
         recursive = 1;
         i = 2;  // Skip "-r" argument
         if (i >= argc) {
-            printf("rm: missing operand after '-r'\n");
+            fprintf(2, "rm: missing operand after '-r'\n");
             exit(EXIT_FAILURE);
         }
     } else {
@@ -71,7 +71,7 @@ main(int argc, char *argv[])
     }
 
     if (i >= argc) {
-        printf("Usage: rm [-r] files...\n");
+        fprintf(2, "Usage: rm [-r] files...\n");
         exit(EXIT_FAILURE);
     }
 
@@ -81,12 +81,12 @@ main(int argc, char *argv[])
         char *name = argv[i];
 
         if (stat(name, &st) < 0) {
-            printf("rm: cannot access '%s'\n", name);
+            fprintf(2, "rm: cannot access '%s'\n", name);
             continue;
         }
 
         if (st.type == T_DIR && !recursive) {
-            printf("rm: cannot remove '%s': Is a directory\n", name);
+            fprintf(2, "rm: cannot remove '%s': Is a directory\n", name);
             continue;
         }
 
@@ -94,7 +94,7 @@ main(int argc, char *argv[])
             rmrf(name);  // Recursive delete
         } else {
             if (unlink(name) < 0)
-                printf("rm: failed to delete '%s'\n", name);
+                fprintf(2, "rm: failed to delete '%s'\n", name);
         }
     }
 

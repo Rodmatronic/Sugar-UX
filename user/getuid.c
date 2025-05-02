@@ -2,7 +2,8 @@
 #include "../sys/types.h"
 
 int 
-main() {
+main()
+{
   printf("%d\n", getuid());
   exit(EXIT_SUCCESS);
 }

@@ -61,7 +61,7 @@ main(int argc, register char *argv[])
 		r |= move(argv[i], argv[argc-1]);
 	return(r);
 usage:
-	fprintf(stderr, "usage: mv f1 f2; or mv d1 d2; or mv f1 ... fn d1\n");
+	fprintf(stderr, "Usage: mv f1 f2; or mv d1 d2; or mv f1 ... fn d1\n");
 	exit(EXIT_FAILURE);
 }
 

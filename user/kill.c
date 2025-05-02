@@ -8,7 +8,7 @@ main(int argc, char **argv)
   int i;
 
   if(argc < 2){
-    printf("usage: kill pid...\n");
+    printf("Usage: kill pid...\n");
     exit(EXIT_FAILURE);
   }
   for(i=1; i<argc; i++)

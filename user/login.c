@@ -7,34 +7,6 @@ char *argv[] = { "sh", 0 };
 
 #define MAX_LINE 256
 
-// Use Zeller's Congruence to get weekday name
-char* get_weekday(int y, int m, int d) {
-  static char* days[] = {
-    "Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"
-  };
-
-  if (m < 3) {
-    m += 12;
-    y -= 1;
-  }
-
-  int h = (d + 2*m + 3*(m+1)/5 + y + y/4 - y/100 + y/400) % 7;
-  return days[h];
-}
-
-// Convert month number to name
-char* monthname(int m) {
-  static char* months[] = {
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-  };
-
-  if (m < 1 || m > 12)
-    return "???";
-
-  return months[m - 1];
-}
-
 int main() {
     main:;
     char user[50], pass[50], line[MAX_LINE];

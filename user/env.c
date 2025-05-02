@@ -33,6 +33,6 @@ main(int argc, char *argv[])
             exit(EXIT_SUCCESS);
         }
     }
-    printf("Usage: env [NAME=VALUE]\n");
-    exit(EXIT_SUCCESS);
+    fprintf(2, "Usage: env [NAME=VALUE]\n");
+    exit(EXIT_FAILURE);
 }
