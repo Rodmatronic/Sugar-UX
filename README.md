@@ -6,9 +6,8 @@ To build and test with the QEMU PC emulator, run the following:
 `make qemu`
 
 Please note that depending on your system's toolchain, it might not compile properly, especially if it targets linux (for example `x86_64-pc-linux-gnu`)
-It's recommended you use `i386-elf`, gcc 12, and binutils 2.40. You should be able to get the right toolchain on debian-based distros with `sudo apt install gcc-i386-elf`
 
-To build with a diffferent toolchain, use: `TOOLCHAIN=i386-elf- make qemu`, though the makefile should detect this one automatically if it's in your path.
+For this reason, we included a script that downloads and extracts (locally) a known working toolchain, `installtoolchain.sh`. After running it, running `make` again should automatically detect it.
 
 The default user is 'sugar', with no password. Root has the password 'root', but we encourage you to use the SU utility instead of logging in as root. Please note that Sugar/Unix is currently hit-or-miss on real hardware.
 
