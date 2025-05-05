@@ -8,9 +8,10 @@
 #include "proc.h"
 #include "file.h"
 #include "stat.h"
+#include "config.h"
 
 // Default hostname
-static char hostname[MAXHOSTNAMELEN] = "localhost";
+char hostname[MAXHOSTNAMELEN] = "localhost";
 void sys_setcursor(void);
 
 int
@@ -247,11 +248,11 @@ int sys_uname(void) {
   u = (struct utsname *)addr;
 
   // Copy strings to user space
-  safestrcpy(u->sysname, "Sugar/Unix", sizeof(u->sysname));
+  safestrcpy(u->sysname, KERNEL_NAME, sizeof(u->sysname));
   safestrcpy(u->nodename, hostname, sizeof(u->nodename));
-  safestrcpy(u->release, "0.15-RELEASE", sizeof(u->release));
-  safestrcpy(u->version, "Sugar/Unix (Codename ALFA)", sizeof(u->version));
-  safestrcpy(u->machine, "i386", sizeof(u->machine));
+  safestrcpy(u->release, RELEASE, sizeof(u->release));
+  safestrcpy(u->version, VERSION, sizeof(u->version));
+  safestrcpy(u->machine, MACHINE, sizeof(u->machine));
 
   return 0;
 }
