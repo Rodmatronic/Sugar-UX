@@ -5,3 +5,4 @@ _*
 *.sym
 out/
 .vscode/
+i386-elf-7.5.0-Linux-x86_64/
