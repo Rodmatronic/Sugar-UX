@@ -192,6 +192,7 @@ UPROGS = \
 	$(OUT_DIR)/_rm \
 	$(OUT_DIR)/_rmdir \
 	$(OUT_DIR)/_sh \
+	$(OUT_DIR)/_sleep \
 	$(OUT_DIR)/_su \
 	$(OUT_DIR)/_true \
 	$(OUT_DIR)/_tty \

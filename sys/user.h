@@ -82,5 +82,6 @@ int     halt(void);
 int     reboot(void);
 void    strcat(char *dest, const char *src);
 int     ttyname(int fd, char *buf, int buflen);
+int     usleep(unsigned long microseconds);
 
 #endif

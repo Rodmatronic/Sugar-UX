@@ -122,6 +122,7 @@ extern int sys_halt(void);
 extern int sys_reboot(void);
 extern int sys_ttyname(void);
 extern int sys_getcwd(void);
+extern int sys_usleep(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]        sys_fork,
@@ -163,6 +164,7 @@ static int (*syscalls[])(void) = {
 [SYS_reboot]      sys_reboot,
 [SYS_ttyname]     sys_ttyname,
 [SYS_getcwd]      sys_getcwd,
+[SYS_usleep]      sys_usleep,
 };
 
 void

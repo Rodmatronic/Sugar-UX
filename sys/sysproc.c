@@ -15,6 +15,27 @@ char hostname[MAXHOSTNAMELEN] = "localhost";
 void sys_setcursor(void);
 
 int
+sys_usleep(void)
+{
+    int usec;
+    if (argint(0, &usec) < 0)
+      return -1;
+  
+    // Convert to ticks
+    int ticks_needed = usec / 10000; // each tick ~10,000 us
+  
+    if (ticks_needed == 0)
+      ticks_needed = 1; // minimum sleep = 1 tick
+  
+    acquire(&tickslock);
+    uint ticks0 = ticks;
+    while (ticks - ticks0 < ticks_needed)
+      sleep(&ticks, &tickslock);
+    release(&tickslock);
+    return 0;
+}
+
+int
 sys_ttyname(void)
 {
   int fd;

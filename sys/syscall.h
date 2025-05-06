@@ -38,3 +38,4 @@
 #define SYS_reboot      37
 #define SYS_ttyname     38
 #define SYS_getcwd      39
+#define SYS_usleep      40
