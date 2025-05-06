@@ -16,7 +16,7 @@ main(int argc, char *argv[])
     }
 
     char *command = argv[1];
-    char path_env[MAX_ENV_VALUE];
+    char * path_env = getenv("PATH");
     char path[MAX_PATH_LEN];
     char buf[MAX_PATH_LEN];
     int found = 0;
@@ -31,7 +31,7 @@ main(int argc, char *argv[])
         }
     } else {
         // Retrieve PATH environment variable
-        if (getenv("PATH", path_env) < 0) {
+        if (path_env < 0) {
             fprintf(2, "whereis: PATH not set\n");
             exit(EXIT_FAILURE);
         }

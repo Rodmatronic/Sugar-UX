@@ -9,11 +9,7 @@ main(int argc, char *argv[])
     printf("reboot: Operation not permitted\n");
     return 1;
   }
-  char user[128];
-  char hostname[128];
-  getenv("LOGNAME", user);
-  getenv("HOSTNAME", hostname);
-  printf("%s reboot: Reboot by %s\n", hostname, user);
+  printf("%s reboot: Reboot by %s\n", getenv("LOGNAME"), getenv("LOGNAME"));
   reboot();
   return 0;
 }

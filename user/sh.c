@@ -96,9 +96,7 @@ runcmd(struct cmd *cmd)
     }
 
     // Use PATH environment variable
-    char path_env[512];
-    getenv("PATH", path_env);
-
+    char * path_env = getenv("PATH");
     char path[128];
     char *pathp = path_env;
     while (*pathp) {
@@ -184,15 +182,7 @@ runcmd(struct cmd *cmd)
 int
 getcmd(char *buf, int nbuf)
 {
-  char dir[512];
-  char host[128];
-  char user[128];
-  char ps1[512];
-  getenv("USER", user);
-  getenv("HOSTNAME", host);
-  getenv("PWD", dir);
-  getenv("PS1", ps1);
-  printf(ps1, host, dir, user);
+  printf("%s:%s %s", getenv("HOSTNAME"), getenv("PWD"), getenv("USER"));
   if (getuid() == 0) {
     write(1, "# ", 2);
   } else {

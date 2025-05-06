@@ -4,6 +4,19 @@
 #include "user.h"
 #include "x86.h"
 
+char *
+getenv(const char *name) {
+  // If you are using more than 8 getenv() calls, please reconsider
+  static char bufs[8][1024]; // rotate between 8 buffers
+  static int i = 0;
+
+  i = (i + 1) % 8;
+  if (sys_getenv(name, bufs[i]) < 0) {
+      return NULL;
+  }
+  return bufs[i];
+}
+
 // Natural order string comparison: compares numbers numerically
 int
 natcmp(const char *a, const char *b)

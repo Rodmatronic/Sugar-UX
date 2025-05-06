@@ -157,7 +157,7 @@ static int (*syscalls[])(void) = {
 [SYS_sethostname] sys_sethostname,
 [SYS_clear]       sys_clear,
 [SYS_setenv]      sys_setenv,
-[SYS_getenv]      sys_getenv,
+[SYS_sys_getenv]  sys_getenv,
 [SYS_listenv]     sys_listenv,
 [SYS_halt]        sys_halt,
 [SYS_reboot]      sys_reboot,

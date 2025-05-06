@@ -76,7 +76,7 @@ int     gethostname(struct utsname *);
 int     sethostname(const char*, int);
 int     clear(void);
 int     setenv(const char *name, const char *value, int);
-int     getenv(const char *name, char *value);
+char*   getenv(const char *name);
 int     listenv(char *buf, int buflen);
 int     halt(void);
 int     reboot(void);

@@ -15,11 +15,7 @@ main(void)
     fprintf(2, "halt: Operation not permitted\n");
     return 1;
   }
-  char user[128];
-  char hostname[128];
-  getenv("LOGNAME", user);
-  getenv("HOSTNAME", hostname);
-  printf("%s halt: Halted by %s\n", hostname, user);
+  printf("%s halt: Halted by %s\n", getenv("HOSTNAME"), getenv("LOGNAME"));
   halt();
   return 1;
 }

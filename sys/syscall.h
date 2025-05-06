@@ -32,7 +32,7 @@
 #define SYS_sethostname 31
 #define SYS_clear       32
 #define SYS_setenv      33
-#define SYS_getenv      34
+#define SYS_sys_getenv  34
 #define SYS_listenv     35
 #define SYS_halt        36
 #define SYS_reboot      37

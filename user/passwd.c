@@ -14,8 +14,8 @@ main(int argc, char *argv[])
 
     if (argc == 1) {
         // No arguments: change current user's password
-        static char user[32];
-        if (getenv("USER", user) < 0 || user[0] == 0) {
+        char * user = getenv("USER");
+        if (user < 0 || user[0] == 0) {
             fprintf(2, "passwd: cannot determine current user\n");
             exit(EXIT_FAILURE);
         }
