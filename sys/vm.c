@@ -341,7 +341,7 @@ select_a_victim(pde_t *pgdir)
       }
       else{
 
-        kprintf("walkpgdir failed \n ");
+        return 0;
       }
 	}
 

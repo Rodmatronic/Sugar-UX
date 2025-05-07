@@ -33,7 +33,6 @@ putc(int c)
   printf_putc(1, c);
 }
 
-
 static void
 printf_putc(int fd, char c)
 {
@@ -73,6 +72,23 @@ printint(int fd, int xx, int base, int sgn, int width, char pad_char)
 
   while(--i >= 0)
     printf_putc(fd, buf[i]);
+}
+
+int
+puts(const char *s)
+{
+  int count = 0;
+  if (s == 0)
+      s = "(null)";
+  while (*s) {
+      printf_putc(1, *s);
+      s++;
+      count++;
+  }
+  printf_putc(1, '\n');
+  count++;
+  flush(1);
+  return count;
 }
 
 // Minimal snprintf: supports %s, %d, %x, %c, and %%
@@ -152,6 +168,7 @@ snprintf(char *buf, int size, const char *fmt, ...)
     buf[n] = 0;
     return n;
 }
+
 void
 printf(char *fmt, ...)
 {

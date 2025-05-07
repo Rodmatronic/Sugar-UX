@@ -79,22 +79,15 @@ swap_page(pde_t *pgdir)
 {
   pte_t* pte=select_a_victim(pgdir);         //returns *pte
   if(pte==0){                                     //If this is true, victim is not found in 1st attempt. Inside this function
-    kprintf("No victim found in 1st attempt. Clearing access bits.");
-    clearaccessbit(pgdir);                        //Accessbits are cleared,
-
-    kprintf("Finding victim again, after clearing access bits of 10%% pages.");
-    pte=select_a_victim(pgdir);                   //then victim is selected again. Victim is found this time.
-
-    if(pte!=0) kprintf("victim found");
-    else kprintf("Not found even in second attempt." );
-  }
-  else{                                           //This else is true, then victim is found in first attempt.
-    kprintf("Victim found in 1st attempt.");
+     clearaccessbit(pgdir);
+      pte=select_a_victim(pgdir);
+      if (pte == 0) {
+          panic("swap_page: no victim found");
+      }
   }
 
   swap_page_from_pte(pte);  //swap victim page to disk
   lcr3(V2P(pgdir));         //This operation ensures that the older TLB entries are flushed
-	//panic("swap_page is not implemented");
 	return 1;
 }
 

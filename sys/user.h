@@ -44,6 +44,7 @@ int     strncmp(const char *p, const char *q, int size);
 void	printf(char*, ...);
 void    putc(int c);
 void	fprintf(int fd, char*, ...);
+int     puts(const char *s);
 char*	gets(char*, int max);
 int     getc(int fd);
 uint	strlen(char*);

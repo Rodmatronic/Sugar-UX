@@ -6,6 +6,7 @@
 #endif
 #ifndef S_IFDIR
 #define S_IFDIR 0040000
+#define stderr 2
 #endif
 
 struct stat {
